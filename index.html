@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Educación Inclusiva BBA - Herramientas para Docentes</title>
+  <meta name="description" content="Herramientas interactivas para adaptar la enseñanza con Leila y Salvador desde la perspectiva de educación inclusiva">
+  
+  <!-- React y Babel -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Crimson Pro', serif;
+      margin: 0;
+      padding: 0;
+    }
+    
+    #root {
+      min-height: 100vh;
+    }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    button {
+      font-family: 'Crimson Pro', serif;
+    }
+    
+    a {
+      transition: all 0.3s ease;
+    }
+    
+    a:hover {
+      opacity: 0.8;
+    }
+
+    /* Scrollbar personalizada */
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 5px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    // Iconos simplificados (lucide-react alternativo)
+    const Icon = ({ name, size = 24, ...props }) => {
+      const icons = {
+        ChevronRight: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polyline points="9 18 15 12 9 6"></polyline></svg>,
+        BookOpen: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>,
+        Users: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>,
+        Lightbulb: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path></svg>,
+        CheckCircle: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>,
+        Mail: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>,
+        ArrowRight: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>,
+        Heart: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>,
+        Sparkles: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path><path d="M5 3v4"></path><path d="M19 17v4"></path><path d="M3 5h4"></path><path d="M17 19h4"></path></svg>,
+        Eye: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>,
+        AlertCircle: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>,
+      };
+      return icons[name] || null;
+    };
+
+    // Datos de ejemplos de adaptación
+    const ejemplosAdaptacion = {
+      leila: [
+        {
+          materia: "Lengua",
+          titulo: "Análisis de cuento",
+          original: {
+            consigna: "Leé el cuento 'El almohadón de plumas' de Horacio Quiroga y respondé las siguientes preguntas: 1) ¿Cuál es el conflicto principal del relato? 2) Analizá la caracterización psicológica de Alicia en los primeros tres párrafos. 3) Identificá y explicá tres recursos literarios utilizados por el autor para generar suspenso. Entregá un texto de mínimo 2 páginas con tus respuestas.",
+            problemas: [
+              { texto: "Leé el cuento", razon: "Barrera: lectura convencional como única vía de acceso" },
+              { texto: "Analizá la caracterización psicológica", razon: "Supuesto escondido: se asume comprensión del término sin explicitar" },
+              { texto: "mínimo 2 páginas", razon: "Barrera: escritura convencional extensa sin opciones alternativas" },
+              { texto: "respondé las siguientes preguntas: 1) 2) 3)", razon: "Muchas preguntas juntas, puede ser abrumador" }
+            ]
+          },
+          adaptada: {
+            consigna: "Vamos a trabajar con el cuento 'El almohadón de plumas' de Horacio Quiroga.\n\n📖 ACCESO AL CUENTO (elegí la forma que prefieras):\n• Escuchá el audio del cuento (te lo paso)\n• Leé el cuento en tu tablet (tipografía tamaño 14)\n• Seguí la lectura mientras alguien lee en voz alta\n\n❓ PREGUNTA 1: El conflicto principal\n¿Qué problema enfrenta Alicia en el cuento? Podés responder:\n• Dictando tu respuesta\n• Escribiendo palabras clave\n• Usando imágenes del cuento como apoyo\n\n❓ PREGUNTA 2: ¿Cómo es Alicia?\nEn los primeros párrafos, ¿cómo describe el autor a Alicia? ¿Qué palabras usa para describir cómo se siente?\n(Podemos trabajar juntos/as para identificar estas palabras en el texto)\n\n❓ PREGUNTA 3: ¿Cómo genera miedo el autor?\nEncontrá 2 momentos del cuento donde sentiste suspenso o miedo. Podés:\n• Marcarlos en el texto\n• Contarme oralmente por qué te generaron esa sensación\n• Dibujar esos momentos\n\nForma de entrega: elegí cómo querés mostrar tu trabajo (escrito, oral con grabación, combinado).",
+            mejoras: [
+              { aspecto: "Opciones de lectura", explicacion: "Se ofrecen múltiples formas de acceder al texto: audio, lectura digital, lectura compartida" },
+              { aspecto: "Preguntas separadas", explicacion: "Cada pregunta está claramente delimitada con un emoji para identificarlas fácilmente" },
+              { aspecto: "Términos explicitados", explicacion: "En lugar de 'caracterización psicológica', se pregunta directamente '¿Cómo es Alicia?'" },
+              { aspecto: "Opciones de respuesta", explicacion: "Se permite dictado, palabras clave, apoyo visual - no solo escritura convencional" },
+              { aspecto: "Flexibilidad en extensión", explicacion: "Se elimina el requisito de '2 páginas' y se valora el contenido sobre la forma" },
+              { aspecto: "Andamiaje", explicacion: "Se ofrece trabajar en conjunto para pregunta 2, reconociendo que puede necesitar apoyo" }
+            ]
+          }
+        },
+        {
+          materia: "Ciencias Sociales",
+          titulo: "Revolución Industrial",
+          original: {
+            consigna: "Investigá sobre la Revolución Industrial en Inglaterra (1760-1840). Elaborá un informe que incluya: causas del proceso, principales innovaciones tecnológicas, transformaciones sociales y económicas, y consecuencias en la clase trabajadora. Incluí bibliografía consultada. Mínimo 3 carillas.",
+            problemas: [
+              { texto: "Investigá sobre", razon: "No se explicita dónde ni cómo investigar" },
+              { texto: "Elaborá un informe", razon: "Formato muy abierto, puede generar incertidumbre" },
+              { texto: "que incluya: causas... innovaciones... transformaciones... consecuencias", razon: "Muchos temas juntos sin estructura clara" },
+              { texto: "Mínimo 3 carillas", razon: "Barrera de escritura convencional extensa" }
+            ]
+          },
+          adaptada: {
+            consigna: "Vamos a conocer la Revolución Industrial en Inglaterra (1760-1840)\n\n📚 MATERIALES:\n• Videos cortos que te voy a compartir (10 min c/u)\n• Imágenes de fábricas y máquinas de la época\n• Texto adaptado con las ideas principales\n\nElegí al menos 2 fuentes para trabajar.\n\n🎯 TU TAREA:\nVamos a hacer un afiche digital o en papel sobre la Revolución Industrial.\nTu afiche debe mostrar:\n\n1️⃣ ¿POR QUÉ pasó? (2-3 causas principales)\n→ Podés usar palabras clave + imágenes\n\n2️⃣ ¿QUÉ inventos hubo?\n→ Elegí 2 inventos y mostralos con imagen + descripción corta\n\n3️⃣ ¿CÓMO cambió la vida de los trabajadores?\n→ Podés hacer un 'antes/después' con dibujos o imágenes\n\n💡 FORMAS DE TRABAJAR:\n• En dupla con un/a compañero/a que elijas\n• Usando Canva, PowerPoint, o afiche en papel\n• Podés dictar textos o escribir palabras clave\n• Yo te ayudo a organizar las ideas antes de empezar\n\n📤 Al final: presentás tu afiche a la clase (2-3 minutos, podés leer de tu afiche)",
+            mejoras: [
+              { aspecto: "Materiales específicos", explicacion: "Se indica exactamente qué fuentes usar (videos, imágenes, texto adaptado)" },
+              { aspecto: "Formato concreto", explicacion: "En lugar de 'informe', se pide un afiche con estructura visual clara" },
+              { aspecto: "Organización por pasos", explicacion: "Los temas están numerados y separados visualmente" },
+              { aspecto: "Apoyo de pares", explicacion: "Se sugiere trabajo en dupla" },
+              { aspecto: "Opciones tecnológicas", explicacion: "Múltiples herramientas digitales que Leila maneja bien" },
+              { aspecto: "Presentación oral", explicacion: "Oportunidad de mostrar lo aprendido sin depender solo de lo escrito" },
+              { aspecto: "Andamiaje previo", explicacion: "Oferta de organizar ideas juntos antes de producir" }
+            ]
+          }
+        }
+      ],
+      salvador: [
+        {
+          materia: "Matemática",
+          titulo: "Teorema de Pitágoras",
+          original: {
+            consigna: "Resolver los siguientes problemas aplicando el Teorema de Pitágoras: 1) Un triángulo rectángulo tiene catetos de 6cm y 8cm, ¿cuánto mide la hipotenusa? 2) Una escalera de 5 metros se apoya contra una pared. Si el pie de la escalera está a 3 metros de la pared, ¿a qué altura llega la escalera? 3) Un campo rectangular mide 120m x 90m, ¿cuánto mide su diagonal? 4) Inventá tu propio problema usando Pitágoras y resolvelo. 5) Explicá con tus palabras por qué funciona el teorema.",
+            problemas: [
+              { texto: "los siguientes problemas", razon: "5 problemas juntos puede generar ansiedad" },
+              { texto: "aplicando el Teorema de Pitágoras", razon: "No hay estructuración del procedimiento" },
+              { texto: "Inventá tu propio problema", razon: "Tarea muy abierta sin andamiaje" },
+              { texto: "Explicá con tus palabras", razon: "Supuesto sobre expresión escrita fluida" }
+            ]
+          },
+          adaptada: {
+            consigna: "Hoy vamos a trabajar con el Teorema de Pitágoras 📐\n\n📋 ORGANIZACIÓN DE LA CLASE:\n1. Repaso del teorema (10 min)\n2. Resolver problemas (25 min)\n3. Compartir en el pizarrón (10 min)\n\n✏️ PROBLEMAS PARA RESOLVER:\n\nElegí 2 de estos 3 problemas:\n\n🔹 PROBLEMA A:\nUn triángulo rectángulo tiene catetos de 6cm y 8cm.\n¿Cuánto mide la hipotenusa?\n\nPasos a seguir:\na² + b² = c²\n6² + 8² = c²\n? + ? = c²\n\n🔹 PROBLEMA B:\nUna escalera de 5 metros se apoya contra una pared.\nSi el pie está a 3 metros de la pared, ¿a qué altura llega?\n\n[Acá hay un dibujo de la situación con las medidas marcadas]\n\nPasos a seguir:\na² + b² = c²\n3² + b² = 5²\n? + b² = ?\n\n🔹 PROBLEMA C:\nUn campo rectangular mide 120m x 90m.\n¿Cuánto mide su diagonal?\n\n[Acá hay un dibujo del rectángulo]\n\n💡 AYUDAS:\n• Podés usar calculadora\n• Dibujá cada situación si te ayuda\n• Escribí los pasos como en el ejemplo\n• Si te trabás, levantá la mano\n\n🎯 PARA DESPUÉS (si terminás):\nPensá un problema sobre algo que te guste (tu casa, una cancha de fútbol, etc.) donde se pueda usar Pitágoras. Charlamos juntos cómo plantearlo.\n\n📊 AL FINAL:\nVas a pasar al pizarrón a mostrar UNO de tus problemas resueltos.",
+            mejoras: [
+              { aspecto: "Anticipación", explicacion: "Se explicita la organización de la clase al inicio para reducir ansiedad" },
+              { aspecto: "Cantidad reducida", explicacion: "En lugar de 5 problemas obligatorios, elige 2 de 3" },
+              { aspecto: "Procedimiento estructurado", explicacion: "Cada problema muestra los pasos a seguir" },
+              { aspecto: "Apoyo visual", explicacion: "Se incluyen dibujos de las situaciones" },
+              { aspecto: "Opciones de ayuda", explicacion: "Se explicita que puede usar calculadora, dibujar, pedir ayuda" },
+              { aspecto: "Tarea abierta opcional", explicacion: "Inventar problema es 'para después' y con apoyo del docente" },
+              { aspecto: "Participación garantizada", explicacion: "Al pasar al pizarrón, sabe que mostrará algo que ya resolvió (estatus positivo)" },
+              { aspecto: "Profundidad sobre cantidad", explicacion: "Menos problemas pero trabajados en profundidad" }
+            ]
+          }
+        },
+        {
+          materia: "Geografía",
+          titulo: "Migraciones",
+          original: {
+            consigna: "Investigá sobre las migraciones internas en Argentina durante el siglo XX. Analizá las causas económicas, sociales y políticas que motivaron los desplazamientos poblacionales del campo a la ciudad. Elaborá un mapa conceptual que integre: causas, períodos históricos, principales flujos migratorios, transformaciones urbanas y consecuencias sociales. Incluí mapas y gráficos que ilustren el fenómeno.",
+            problemas: [
+              { texto: "Investigá sobre las migraciones", razon: "Tarea muy amplia sin delimitación clara" },
+              { texto: "Analizá las causas económicas, sociales y políticas", razon: "Múltiples conceptos abstractos juntos" },
+              { texto: "Elaborá un mapa conceptual que integre...", razon: "Muchos elementos a integrar simultáneamente, puede abrumar" },
+              { texto: "Incluí mapas y gráficos", razon: "No se especifica cuáles ni cómo conseguirlos" }
+            ]
+          },
+          adaptada: {
+            consigna: "Vamos a entender las MIGRACIONES en Argentina 🗺️\n\n📅 ORGANIZACIÓN:\nClase 1: Conocer el tema con mapas\nClase 2: Armar mapa conceptual\nHoy es Clase 1.\n\n🎯 HOY VAMOS A TRABAJAR CON MAPAS:\n\n1️⃣ OBSERVÁ estos 3 mapas de Argentina:\n• Mapa A: Argentina en 1900 (dónde vivía la gente)\n• Mapa B: Argentina en 1950 (movimientos del campo a la ciudad)\n• Mapa C: Argentina en 1990 (ciudades grandes)\n\n2️⃣ COMPLETÁ esta tabla:\n\n| Año | ¿Dónde vivía más gente? | ¿Qué ciudades crecieron? |\n|------|------------------------|------------------------|\n| 1900 | | |\n| 1950 | | |\n| 1990 | | |\n\n(Podés escribir palabras clave o dictarme)\n\n3️⃣ RESPONDÉ (oralmente o por escrito):\n¿Por qué pensás que la gente se fue del campo a la ciudad?\nYo te doy 3 opciones, elegí las que te parezcan correctas:\n□ Para buscar trabajo en fábricas\n□ Porque no había agua en el campo\n□ Para tener mejor vida en la ciudad\n□ Otro motivo: _______\n\n💬 CHARLAMOS:\n¿Conocés a alguien que haya migrado? ¿Tu familia? ¿Tus abuelos?\n(Esto es para conectar el tema con tu vida)\n\n📌 PRÓXIMA CLASE:\nVamos a armar un mapa conceptual CON IMÁGENES sobre esto.\nYo te voy a dar una plantilla para que sea más fácil.",
+            mejoras: [
+              { aspecto: "Anticipación de clases", explicacion: "Se explica que el tema se trabaja en 2 clases para reducir ansiedad" },
+              { aspecto: "Foco en mapas", explicacion: "Se aprovecha que a Salvador le gustan los mapas (fortaleza identificada)" },
+              { aspecto: "Tarea acotada", explicacion: "Hoy solo trabaja con mapas y tabla simple, no todo junto" },
+              { aspecto: "Estructura visual clara", explicacion: "Tabla para completar en lugar de texto libre" },
+              { aspecto: "Opciones de respuesta", explicacion: "Para la pregunta sobre causas, se dan opciones para elegir" },
+              { aspecto: "Conexión personal", explicacion: "Pregunta sobre su familia para vincular con experiencia propia" },
+              { aspecto: "Andamiaje futuro", explicacion: "Se anticipa que la próxima clase tendrá plantilla (no parte de cero)" },
+              { aspecto: "Opción oral", explicacion: "Puede responder oralmente si la escritura es barrera ese día" }
+            ]
+          }
+        }
+      ]
+    };
+
+    // Componente del Adaptador Interactivo
+    function AdaptadorInteractivo({ selectedStudent, setSelectedStudent, currentStudent }) {
+      const [selectedExample, setSelectedExample] = useState(0);
+      const [visualizationStep, setVisualizationStep] = useState(0);
+      const [showComparison, setShowComparison] = useState(false);
+
+      const ejemplos = ejemplosAdaptacion[selectedStudent];
+      const ejemplo = ejemplos[selectedExample];
+
+      return (
+        <div style={{ animation: 'fadeIn 0.5s ease' }}>
+          <h2 style={{ fontSize: '2.5rem', color: '#2d3436', marginBottom: '1rem', fontWeight: 700 }}>
+            Adaptador de Tareas: Ver el Proceso
+          </h2>
+          <p style={{ fontSize: '1.2rem', color: '#636e72', marginBottom: '2rem' }}>
+            Mirá cómo una tarea se transforma paso a paso en una propuesta inclusiva
+          </p>
+
+          {/* Selector de estudiante */}
+          <div style={{
+            background: 'white',
+            borderRadius: '12px',
+            padding: '1.5rem',
+            marginBottom: '2rem',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
+          }}>
+            <label style={{ fontSize: '1.1rem', fontWeight: 600, color: '#2d3436', display: 'block', marginBottom: '0.75rem' }}>
+              ¿Para quién querés ver el ejemplo?
+            </label>
+            <div style={{ display: 'flex', gap: '1rem' }}>
+              <button
+                onClick={() => {
+                  setSelectedStudent('leila');
+                  setSelectedExample(0);
+                  setVisualizationStep(0);
+                  setShowComparison(false);
+                }}
+                style={{
+                  flex: 1,
+                  padding: '1rem',
+                  border: `2px solid ${selectedStudent === 'leila' ? '#e17055' : '#dfe6e9'}`,
+                  background: selectedStudent === 'leila' ? '#e17055' : 'white',
+                  color: selectedStudent === 'leila' ? 'white' : '#2d3436',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontSize: '1.1rem',
+                  fontWeight: 600,
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                Leila
+              </button>
+              <button
+                onClick={() => {
+                  setSelectedStudent('salvador');
+                  setSelectedExample(0);
+                  setVisualizationStep(0);
+                  setShowComparison(false);
+                }}
+                style={{
+                  flex: 1,
+                  padding: '1rem',
+                  border: `2px solid ${selectedStudent === 'salvador' ? '#00b894' : '#dfe6e9'}`,
+                  background: selectedStudent === 'salvador' ? '#00b894' : 'white',
+                  color: selectedStudent === 'salvador' ? 'white' : '#2d3436',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontSize: '1.1rem',
+                  fontWeight: 600,
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                Salvador
+              </button>
+            </div>
+          </div>
+
+          {/* Selector de ejemplo */}
+          <div style={{
+            background: 'white',
+            borderRadius: '12px',
+            padding: '1.5rem',
+            marginBottom: '2rem',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
+          }}>
+            <label style={{ fontSize: '1.1rem', fontWeight: 600, color: '#2d3436', display: 'block', marginBottom: '0.75rem' }}>
+              Elegí un ejemplo de tarea:
+            </label>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+              {ejemplos.map((ej, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    setSelectedExample(idx);
+                    setVisualizationStep(0);
+                    setShowComparison(false);
+                  }}
+                  style={{
+                    padding: '1rem',
+                    border: `2px solid ${selectedExample === idx ? currentStudent.color : '#dfe6e9'}`,
+                    background: selectedExample === idx ? `${currentStudent.color}15` : 'white',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transition: 'all 0.3s ease'
+                  }}
+                >
+                  <div style={{ fontSize: '0.9rem', color: '#636e72', marginBottom: '0.25rem' }}>
+                    {ej.materia}
+                  </div>
+                  <div style={{ fontSize: '1.1rem', fontWeight: 600, color: '#2d3436' }}>
+                    {ej.titulo}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Visualización paso a paso */}
+          <div style={{
+            background: 'white',
+            borderRadius: '12px',
+            padding: '2rem',
+            marginBottom: '2rem',
+            boxShadow: '0 10px 40px rgba(0,0,0,0.1)'
+          }}>
+            <h3 style={{ fontSize: '1.8rem', color: '#2d3436', marginBottom: '1.5rem', fontWeight: 700 }}>
+              {ejemplo.materia}: {ejemplo.titulo}
+            </h3>
+
+            {/* Controles de visualización */}
+            <div style={{ 
+              display: 'flex', 
+              gap: '1rem', 
+              marginBottom: '2rem',
+              flexWrap: 'wrap'
+            }}>
+              <button
+                onClick={() => {
+                  setVisualizationStep(0);
+                  setShowComparison(false);
+                }}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  border: 'none',
+                  background: visualizationStep === 0 && !showComparison ? currentStudent.color : '#dfe6e9',
+                  color: visualizationStep === 0 && !showComparison ? 'white' : '#2d3436',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  fontWeight: 600
+                }}
+              >
+                1. Consigna original
+              </button>
+              <button
+                onClick={() => {
+                  setVisualizationStep(1);
+                  setShowComparison(false);
+                }}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  border: 'none',
+                  background: visualizationStep === 1 && !showComparison ? currentStudent.color : '#dfe6e9',
+                  color: visualizationStep === 1 && !showComparison ? 'white' : '#2d3436',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  fontWeight: 600
+                }}
+              >
+                2. Identificar barreras
+              </button>
+              <button
+                onClick={() => {
+                  setVisualizationStep(2);
+                  setShowComparison(false);
+                }}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  border: 'none',
+                  background: visualizationStep === 2 && !showComparison ? currentStudent.color : '#dfe6e9',
+                  color: visualizationStep === 2 && !showComparison ? 'white' : '#2d3436',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  fontWeight: 600
+                }}
+              >
+                3. Consigna adaptada
+              </button>
+              <button
+                onClick={() => {
+                  setShowComparison(true);
+                  setVisualizationStep(3);
+                }}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  border: 'none',
+                  background: showComparison ? currentStudent.color : '#dfe6e9',
+                  color: showComparison ? 'white' : '#2d3436',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}
+              >
+                <Icon name="Eye" size={18} />
+                Ver comparación
+              </button>
+            </div>
+
+            {/* PASO 1: Consigna Original */}
+            {visualizationStep === 0 && !showComparison && (
+              <div style={{ animation: 'fadeIn 0.5s ease' }}>
+                <div style={{
+                  padding: '1.5rem',
+                  background: '#f8f9fa',
+                  borderRadius: '12px',
+                  borderLeft: '5px solid #636e72'
+                }}>
+                  <div style={{ 
+                    fontSize: '0.9rem', 
+                    fontWeight: 600, 
+                    color: '#636e72', 
+                    marginBottom: '1rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px'
+                  }}>
+                    Tarea original
+                  </div>
+                  <div style={{ 
+                    fontSize: '1.1rem', 
+                    lineHeight: 1.8, 
+                    color: '#2d3436',
+                    whiteSpace: 'pre-wrap',
+                    background: 'white',
+                    padding: '1.5rem',
+                    borderRadius: '8px'
+                  }}>
+                    {ejemplo.original.consigna}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* PASO 2: Identificar Barreras */}
+            {visualizationStep === 1 && !showComparison && (
+              <div style={{ animation: 'fadeIn 0.5s ease' }}>
+                <div style={{
+                  padding: '1.5rem',
+                  background: '#fff3cd',
+                  borderRadius: '12px',
+                  borderLeft: '5px solid #ffc107',
+                  marginBottom: '1.5rem'
+                }}>
+                  <div style={{ 
+                    fontSize: '0.9rem', 
+                    fontWeight: 600, 
+                    color: '#856404', 
+                    marginBottom: '1rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem'
+                  }}>
+                    <Icon name="AlertCircle" size={20} />
+                    Barreras identificadas
+                  </div>
+                  <div style={{ 
+                    fontSize: '1.1rem', 
+                    lineHeight: 1.8, 
+                    color: '#2d3436',
+                    whiteSpace: 'pre-wrap',
+                    background: 'white',
+                    padding: '1.5rem',
+                    borderRadius: '8px'
+                  }}>
+                    {ejemplo.original.consigna}
+                  </div>
+                </div>
+
+                <div>
+                  <h4 style={{ fontSize: '1.3rem', color: '#2d3436', marginBottom: '1rem', fontWeight: 600 }}>
+                    ¿Por qué son barreras?
+                  </h4>
+                  {ejemplo.original.problemas.map((problema, idx) => (
+                    <div key={idx} style={{
+                      padding: '1rem',
+                      background: 'white',
+                      borderRadius: '8px',
+                      marginBottom: '0.75rem',
+                      borderLeft: `4px solid #ff7675`
+                    }}>
+                      <div style={{ fontWeight: 600, color: '#2d3436', marginBottom: '0.5rem' }}>
+                        "{problema.texto}"
+                      </div>
+                      <div style={{ color: '#636e72', fontSize: '1rem' }}>
+                        {problema.razon}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* PASO 3: Consigna Adaptada */}
+            {visualizationStep === 2 && !showComparison && (
+              <div style={{ animation: 'fadeIn 0.5s ease' }}>
+                <div style={{
+                  padding: '1.5rem',
+                  background: `${currentStudent.color}15`,
+                  borderRadius: '12px',
+                  borderLeft: `5px solid ${currentStudent.color}`,
+                  marginBottom: '1.5rem'
+                }}>
+                  <div style={{ 
+                    fontSize: '0.9rem', 
+                    fontWeight: 600, 
+                    color: currentStudent.color, 
+                    marginBottom: '1rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px'
+                  }}>
+                    Consigna adaptada para {currentStudent.name}
+                  </div>
+                  <div style={{ 
+                    fontSize: '1.1rem', 
+                    lineHeight: 1.8, 
+                    color: '#2d3436',
+                    whiteSpace: 'pre-wrap',
+                    background: 'white',
+                    padding: '1.5rem',
+                    borderRadius: '8px'
+                  }}>
+                    {ejemplo.adaptada.consigna}
+                  </div>
+                </div>
+
+                <div>
+                  <h4 style={{ fontSize: '1.3rem', color: '#2d3436', marginBottom: '1rem', fontWeight: 600 }}>
+                    ¿Qué mejoras se hicieron?
+                  </h4>
+                  {ejemplo.adaptada.mejoras.map((mejora, idx) => (
+                    <div key={idx} style={{
+                      padding: '1rem',
+                      background: 'white',
+                      borderRadius: '8px',
+                      marginBottom: '0.75rem',
+                      borderLeft: `4px solid ${currentStudent.color}`
+                    }}>
+                      <div style={{ fontWeight: 600, color: currentStudent.color, marginBottom: '0.5rem' }}>
+                        ✓ {mejora.aspecto}
+                      </div>
+                      <div style={{ color: '#636e72', fontSize: '1rem' }}>
+                        {mejora.explicacion}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* COMPARACIÓN LADO A LADO */}
+            {showComparison && (
+              <div style={{ animation: 'fadeIn 0.5s ease' }}>
+                <div style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                  gap: '1.5rem'
+                }}>
+                  <div>
+                    <h4 style={{ 
+                      fontSize: '1.3rem', 
+                      color: '#636e72', 
+                      marginBottom: '1rem', 
+                      fontWeight: 600,
+                      textAlign: 'center'
+                    }}>
+                      ❌ Antes
+                    </h4>
+                    <div style={{
+                      padding: '1.5rem',
+                      background: '#f8f9fa',
+                      borderRadius: '12px',
+                      borderLeft: '5px solid #636e72',
+                      minHeight: '400px'
+                    }}>
+                      <div style={{ 
+                        fontSize: '1rem', 
+                        lineHeight: 1.7, 
+                        color: '#2d3436',
+                        whiteSpace: 'pre-wrap'
+                      }}>
+                        {ejemplo.original.consigna}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 style={{ 
+                      fontSize: '1.3rem', 
+                      color: currentStudent.color, 
+                      marginBottom: '1rem', 
+                      fontWeight: 600,
+                      textAlign: 'center'
+                    }}>
+                      ✓ Después
+                    </h4>
+                    <div style={{
+                      padding: '1.5rem',
+                      background: `${currentStudent.color}15`,
+                      borderRadius: '12px',
+                      borderLeft: `5px solid ${currentStudent.color}`,
+                      minHeight: '400px'
+                    }}>
+                      <div style={{ 
+                        fontSize: '1rem', 
+                        lineHeight: 1.7, 
+                        color: '#2d3436',
+                        whiteSpace: 'pre-wrap'
+                      }}>
+                        {ejemplo.adaptada.consigna}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Recordatorios clave */}
+          <div style={{
+            background: 'linear-gradient(135deg, #6c5ce7, #a29bfe)',
+            borderRadius: '12px',
+            padding: '2rem',
+            color: 'white'
+          }}>
+            <h3 style={{ fontSize: '1.8rem', marginBottom: '1rem' }}>💡 Claves de la adaptación</h3>
+            <ul style={{ fontSize: '1.1rem', lineHeight: 1.8, paddingLeft: '1.5rem' }}>
+              <li>Mantener el desafío cognitivo (no simplificar el contenido)</li>
+              <li>Ofrecer múltiples formas de acceso y expresión</li>
+              <li>Estructurar sin rigidizar</li>
+              <li>Aprovechar fortalezas e intereses identificados</li>
+              <li>Crear oportunidades para que brillen frente a sus pares</li>
+            </ul>
+          </div>
+        </div>
+      );
+    }
+
+    // Componente principal
+    function EducacionInclusiva() {
+      const [activeSection, setActiveSection] = useState('home');
+      const [selectedStudent, setSelectedStudent] = useState('leila');
+
+      // Datos de los estudiantes
+      const studentData = {
+        leila: {
+          name: "Leila",
+          curso: "3°B",
+          color: "#e17055",
+          apoyos: [
+            "Revisar consignas: explicitar supuestos escondidos",
+            "Preguntarle directamente si entendió la consigna",
+            "Promover trabajo colaborativo (no directivo)",
+            "Usar múltiples formas de lectura: pantalla, audio, imágenes",
+            "Apoyarse en sus intereses: manga, anime, Pokemon Go",
+            "Permitir dictado como forma de escritura válida"
+          ],
+          fortalezas: [
+            "Excelente lectora de imágenes",
+            "Conoce palabras en inglés por videojuegos",
+            "Le gusta la tecnología y las redes sociales",
+            "Expresiva con gestos y mirada",
+            "Puede dictar para registro escrito"
+          ],
+          consideraciones: [
+            "Puede parecer no prestar atención pero luego recupera contenidos",
+            "Vincular con compañeros por intereses compartidos",
+            "No confundir mirada con atención",
+            "Evaluar cuándo flexibilizar y cuándo sostener la propuesta"
+          ]
+        },
+        salvador: {
+          name: "Salvador",
+          curso: "3°C",
+          color: "#00b894",
+          apoyos: [
+            "Consignas claras: sin supuestos escondidos, preguntas simples",
+            "Estructurar la clase: explicitar organización al inicio",
+            "Promover trabajo colaborativo genuino",
+            "Usar respiraciones conscientes para autorregulación",
+            "Mapas conceptuales con imágenes como apoyo",
+            "Anticipar temas y organización de la clase"
+          ],
+          fortalezas: [
+            "Le gustan los mapas en geografía",
+            "Interés por apellidos (útil para Historia)",
+            "Puede desarrollar gusto por contenidos con buena didáctica",
+            "Repone contenidos trabajados en clase",
+            "Se siente cómodo pasando al pizarrón"
+          ],
+          consideraciones: [
+            "Puede abrumarse con sonidos fuertes o situaciones caóticas",
+            "Ansiedad por llegar tarde o ser último en la lista",
+            "Prestar atención a sus gestos como forma de expresión",
+            "Puede parecer desconectado pero luego retoma contenidos"
+          ]
+        }
+      };
+
+      // Fundamentos teóricos
+      const fundamentos = [
+        {
+          titulo: "Modelo Social vs Modelo Médico",
+          contenido: "El modelo social entiende la discapacidad como el resultado de barreras sociales, no como un déficit individual. Nuestro trabajo es eliminar barreras, no 'arreglar' al estudiante."
+        },
+        {
+          titulo: "Presencia, Participación y Logros",
+          contenido: "La inclusión va más allá de la presencia física. Implica participación genuina en las actividades de aprendizaje y oportunidades reales de logro académico."
+        },
+        {
+          titulo: "Cambio de punto de vista",
+          contenido: "De las certezas sobre las imposibilidades del alumnado (modelo del déficit) a los esfuerzos por construir condiciones pedagógicas y didácticas para que todos aprendan."
+        },
+        {
+          titulo: "La diferencia como valor",
+          contenido: "Recuperar la diferencia como algo neutral o positivo, no como sinónimo de deficiencia. Hablar con naturalidad sobre los apoyos con los estudiantes y el grupo."
+        }
+      ];
+
+      const currentStudent = studentData[selectedStudent];
+
+      return (
+        <div style={{
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, #ffeaa7 0%, #fab1a0 50%, #ff7675 100%)'
+        }}>
+          {/* Header */}
+          <header style={{
+            background: 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(10px)',
+            borderBottom: '3px solid #2d3436',
+            padding: '1.5rem 2rem',
+            position: 'sticky',
+            top: 0,
+            zIndex: 100,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+          }}>
+            <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+              <h1 style={{
+                fontSize: '2.5rem',
+                fontWeight: 700,
+                color: '#2d3436',
+                marginBottom: '0.5rem',
+                letterSpacing: '-0.02em',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}>
+                <Icon name="Sparkles" size={32} style={{ color: '#e17055' }} />
+                Educación Inclusiva BBA
+              </h1>
+              <p style={{ color: '#636e72', fontSize: '1.1rem', margin: 0 }}>
+                Herramientas para adaptar la enseñanza con Leila y Salvador
+              </p>
+            </div>
+          </header>
+
+          {/* Navigation */}
+          <nav style={{
+            background: 'white',
+            borderBottom: '2px solid #dfe6e9',
+            position: 'sticky',
+            top: '85px',
+            zIndex: 99
+          }}>
+            <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', gap: '0.5rem', padding: '0.5rem 2rem', overflowX: 'auto' }}>
+              {[
+                { id: 'home', label: 'Inicio', icon: 'Heart' },
+                { id: 'fundamentos', label: 'Fundamentos', icon: 'BookOpen' },
+                { id: 'estudiantes', label: 'Estudiantes', icon: 'Users' },
+                { id: 'adaptador', label: 'Adaptador de Tareas', icon: 'Lightbulb' },
+                { id: 'preguntas', label: 'Preguntas Guía', icon: 'CheckCircle' }
+              ].map(nav => (
+                <button
+                  key={nav.id}
+                  onClick={() => setActiveSection(nav.id)}
+                  style={{
+                    padding: '0.75rem 1.5rem',
+                    border: 'none',
+                    background: activeSection === nav.id ? '#2d3436' : 'transparent',
+                    color: activeSection === nav.id ? 'white' : '#2d3436',
+                    cursor: 'pointer',
+                    borderRadius: '8px',
+                    fontSize: '1rem',
+                    fontWeight: 600,
+                    transition: 'all 0.3s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  <Icon name={nav.icon} size={18} />
+                  {nav.label}
+                </button>
+              ))}
+            </div>
+          </nav>
+
+          {/* Main Content */}
+          <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '3rem 2rem' }}>
+            
+            {/* HOME */}
+            {activeSection === 'home' && (
+              <div style={{ animation: 'fadeIn 0.5s ease' }}>
+                <div style={{
+                  background: 'white',
+                  borderRadius: '16px',
+                  padding: '3rem',
+                  boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
+                  marginBottom: '2rem'
+                }}>
+                  <h2 style={{ fontSize: '2.5rem', color: '#2d3436', marginBottom: '1.5rem', fontWeight: 700 }}>
+                    Bienvenidos/as
+                  </h2>
+                  <p style={{ fontSize: '1.2rem', lineHeight: 1.8, color: '#636e72', marginBottom: '1.5rem' }}>
+                    Este espacio está diseñado para acompañar a los docentes de 6° año en la adaptación de la enseñanza 
+                    desde la perspectiva de <strong>educación inclusiva</strong>. No es una biblioteca de documentos, 
+                    sino una <strong>herramienta viva</strong> que te muestra el proceso de adaptación paso a paso.
+                  </p>
+                  <p style={{ fontSize: '1.2rem', lineHeight: 1.8, color: '#636e72', marginBottom: '2rem' }}>
+                    Aquí encontrarás orientaciones para trabajar con <strong style={{ color: '#e17055' }}>Leila</strong> y{' '}
+                    <strong style={{ color: '#00b894' }}>Salvador</strong>, herramientas interactivas para adaptar tareas, 
+                    y ejemplos concretos de cómo transformar una actividad estándar en una propuesta inclusiva que mantiene 
+                    el desafío cognitivo.
+                  </p>
+
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                    gap: '1.5rem',
+                    marginTop: '2rem'
+                  }}>
+                    <div style={{
+                      padding: '1.5rem',
+                      background: 'linear-gradient(135deg, #74b9ff, #a29bfe)',
+                      borderRadius: '12px',
+                      color: 'white'
+                    }}>
+                      <Icon name="BookOpen" size={32} style={{ marginBottom: '1rem' }} />
+                      <h3 style={{ fontSize: '1.3rem', marginBottom: '0.5rem' }}>Fundamentos</h3>
+                      <p style={{ fontSize: '1rem', opacity: 0.9 }}>Marco teórico de educación inclusiva</p>
+                    </div>
+                    <div style={{
+                      padding: '1.5rem',
+                      background: 'linear-gradient(135deg, #fd79a8, #e17055)',
+                      borderRadius: '12px',
+                      color: 'white'
+                    }}>
+                      <Icon name="Users" size={32} style={{ marginBottom: '1rem' }} />
+                      <h3 style={{ fontSize: '1.3rem', marginBottom: '0.5rem' }}>Perfiles</h3>
+                      <p style={{ fontSize: '1rem', opacity: 0.9 }}>Conocé a Leila y Salvador</p>
+                    </div>
+                    <div style={{
+                      padding: '1.5rem',
+                      background: 'linear-gradient(135deg, #00b894, #55efc4)',
+                      borderRadius: '12px',
+                      color: 'white'
+                    }}>
+                      <Icon name="Lightbulb" size={32} style={{ marginBottom: '1rem' }} />
+                      <h3 style={{ fontSize: '1.3rem', marginBottom: '0.5rem' }}>Adaptador</h3>
+                      <p style={{ fontSize: '1rem', opacity: 0.9 }}>Herramienta paso a paso</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Contacto */}
+                <div style={{
+                  background: '#2d3436',
+                  borderRadius: '16px',
+                  padding: '2rem',
+                  color: 'white',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  gap: '1rem'
+                }}>
+                  <div>
+                    <h3 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>¿Dudas o consultas?</h3>
+                    <p style={{ opacity: 0.8, margin: 0 }}>Contactate con nosotros</p>
+                  </div>
+                  <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                        <Icon name="Mail" size={18} />
+                        <strong>Pilar Cobeñas</strong>
+                      </div>
+                      <a href="mailto:pilarcobenas@gmail.com" style={{ color: '#74b9ff', textDecoration: 'none' }}>
+                        pilarcobenas@gmail.com
+                      </a>
+                    </div>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                        <Icon name="Mail" size={18} />
+                        <strong>Francisco Rodríguez Gaitán</strong>
+                      </div>
+                      <p style={{ color: '#74b9ff', margin: 0 }}>
+                        [Tu correo aquí]
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* FUNDAMENTOS */}
+            {activeSection === 'fundamentos' && (
+              <div style={{ animation: 'fadeIn 0.5s ease' }}>
+                <h2 style={{ fontSize: '2.5rem', color: '#2d3436', marginBottom: '2rem', fontWeight: 700 }}>
+                  Fundamentos de Educación Inclusiva
+                </h2>
+                {fundamentos.map((item, idx) => (
+                  <div key={idx} style={{
+                    background: 'white',
+                    borderRadius: '12px',
+                    padding: '2rem',
+                    marginBottom: '1.5rem',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                    borderLeft: `5px solid ${['#74b9ff', '#fd79a8', '#00b894', '#ffeaa7'][idx % 4]}`
+                  }}>
+                    <h3 style={{ fontSize: '1.8rem', color: '#2d3436', marginBottom: '1rem', fontWeight: 600 }}>
+                      {item.titulo}
+                    </h3>
+                    <p style={{ fontSize: '1.1rem', lineHeight: 1.8, color: '#636e72' }}>
+                      {item.contenido}
+                    </p>
+                  </div>
+                ))}
+
+                <div style={{
+                  background: 'linear-gradient(135deg, #a29bfe, #6c5ce7)',
+                  borderRadius: '12px',
+                  padding: '2.5rem',
+                  color: 'white',
+                  marginTop: '2rem'
+                }}>
+                  <h3 style={{ fontSize: '2rem', marginBottom: '1rem' }}>Tres pilares de la inclusión</h3>
+                  <div style={{ display: 'grid', gap: '1rem', fontSize: '1.1rem' }}>
+                    <div>
+                      <strong>PRESENCIA:</strong> Más allá de estar físicamente en el aula. ¿Cómo pasar de presencia física a presencia plena?
+                    </div>
+                    <div>
+                      <strong>PARTICIPACIÓN:</strong> Calidad de las experiencias educativas. ¿Cómo pensamos las interacciones entre estudiantes?
+                    </div>
+                    <div>
+                      <strong>LOGROS:</strong> Evaluación como herramienta de auto-evaluación docente. ¿Evaluamos lo que importa?
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ESTUDIANTES */}
+            {activeSection === 'estudiantes' && (
+              <div style={{ animation: 'fadeIn 0.5s ease' }}>
+                <h2 style={{ fontSize: '2.5rem', color: '#2d3436', marginBottom: '2rem', fontWeight: 700 }}>
+                  Conociendo a nuestros estudiantes
+                </h2>
+
+                {/* Selector */}
+                <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
+                  <button
+                    onClick={() => setSelectedStudent('leila')}
+                    style={{
+                      flex: 1,
+                      padding: '1.5rem',
+                      border: `3px solid ${selectedStudent === 'leila' ? '#e17055' : '#dfe6e9'}`,
+                      background: selectedStudent === 'leila' ? '#e17055' : 'white',
+                      color: selectedStudent === 'leila' ? 'white' : '#2d3436',
+                      borderRadius: '12px',
+                      cursor: 'pointer',
+                      fontSize: '1.3rem',
+                      fontWeight: 600,
+                      transition: 'all 0.3s ease'
+                    }}
+                  >
+                    Leila - 3°B
+                  </button>
+                  <button
+                    onClick={() => setSelectedStudent('salvador')}
+                    style={{
+                      flex: 1,
+                      padding: '1.5rem',
+                      border: `3px solid ${selectedStudent === 'salvador' ? '#00b894' : '#dfe6e9'}`,
+                      background: selectedStudent === 'salvador' ? '#00b894' : 'white',
+                      color: selectedStudent === 'salvador' ? 'white' : '#2d3436',
+                      borderRadius: '12px',
+                      cursor: 'pointer',
+                      fontSize: '1.3rem',
+                      fontWeight: 600,
+                      transition: 'all 0.3s ease'
+                    }}
+                  >
+                    Salvador - 3°C
+                  </button>
+                </div>
+
+                {/* Perfil del estudiante */}
+                <div style={{
+                  background: 'white',
+                  borderRadius: '16px',
+                  padding: '2.5rem',
+                  boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
+                  borderTop: `6px solid ${currentStudent.color}`
+                }}>
+                  <h3 style={{ fontSize: '2.2rem', color: currentStudent.color, marginBottom: '2rem', fontWeight: 700 }}>
+                    {currentStudent.name} - {currentStudent.curso}
+                  </h3>
+
+                  {/* Apoyos necesarios */}
+                  <div style={{ marginBottom: '2rem' }}>
+                    <h4 style={{ fontSize: '1.6rem', color: '#2d3436', marginBottom: '1rem', fontWeight: 600 }}>
+                      Apoyos necesarios
+                    </h4>
+                    <ul style={{ listStyle: 'none', padding: 0 }}>
+                      {currentStudent.apoyos.map((apoyo, idx) => (
+                        <li key={idx} style={{
+                          padding: '1rem',
+                          background: '#f8f9fa',
+                          borderRadius: '8px',
+                          marginBottom: '0.75rem',
+                          borderLeft: `4px solid ${currentStudent.color}`,
+                          fontSize: '1.1rem',
+                          color: '#2d3436',
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          gap: '0.75rem'
+                        }}>
+                          <Icon name="CheckCircle" size={20} style={{ color: currentStudent.color, flexShrink: 0, marginTop: '0.2rem' }} />
+                          <span>{apoyo}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Fortalezas */}
+                  <div style={{ marginBottom: '2rem' }}>
+                    <h4 style={{ fontSize: '1.6rem', color: '#2d3436', marginBottom: '1rem', fontWeight: 600 }}>
+                      Fortalezas e intereses
+                    </h4>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                      {currentStudent.fortalezas.map((fortaleza, idx) => (
+                        <div key={idx} style={{
+                          padding: '1rem',
+                          background: `${currentStudent.color}15`,
+                          borderRadius: '8px',
+                          fontSize: '1rem',
+                          color: '#2d3436',
+                          border: `2px solid ${currentStudent.color}30`,
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          gap: '0.5rem'
+                        }}>
+                          <Icon name="Sparkles" size={16} style={{ color: currentStudent.color, flexShrink: 0, marginTop: '0.2rem' }} />
+                          <span>{fortaleza}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Consideraciones */}
+                  <div>
+                    <h4 style={{ fontSize: '1.6rem', color: '#2d3436', marginBottom: '1rem', fontWeight: 600 }}>
+                      Consideraciones importantes
+                    </h4>
+                    <ul style={{ listStyle: 'none', padding: 0 }}>
+                      {currentStudent.consideraciones.map((consideracion, idx) => (
+                        <li key={idx} style={{
+                          padding: '1rem',
+                          background: '#fff3cd',
+                          borderRadius: '8px',
+                          marginBottom: '0.75rem',
+                          borderLeft: '4px solid #ffc107',
+                          fontSize: '1.1rem',
+                          color: '#856404'
+                        }}>
+                          {consideracion}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ADAPTADOR DE TAREAS */}
+            {activeSection === 'adaptador' && (
+              <AdaptadorInteractivo 
+                selectedStudent={selectedStudent}
+                setSelectedStudent={setSelectedStudent}
+                currentStudent={currentStudent}
+              />
+            )}
+
+            {/* PREGUNTAS GUÍA */}
+            {activeSection === 'preguntas' && (
+              <div style={{ animation: 'fadeIn 0.5s ease' }}>
+                <h2 style={{ fontSize: '2.5rem', color: '#2d3436', marginBottom: '2rem', fontWeight: 700 }}>
+                  Preguntas Guía para la Enseñanza
+                </h2>
+
+                {[
+                  {
+                    categoria: "Sobre el estudiante",
+                    preguntas: [
+                      "¿Cuáles son nuestras miradas sobre estudiantes con discapacidad?",
+                      "¿Qué es lo que los/as estudiantes conocen? ¿Cómo conocen?",
+                      "¿Qué idea tienen sobre sí como estudiantes?",
+                      "¿Cómo se vinculan sus visiones de sí como jóvenes y como estudiantes?"
+                    ]
+                  },
+                  {
+                    categoria: "Sobre la enseñanza",
+                    preguntas: [
+                      "¿Cómo pensamos los contenidos a enseñar?",
+                      "¿Qué aspectos de los contenidos vamos a desarrollar?",
+                      "¿Quiénes pueden ayudarnos a planificar las clases?",
+                      "¿Cómo pensamos lo colectivo en el aula?"
+                    ]
+                  },
+                  {
+                    categoria: "Sobre los apoyos",
+                    preguntas: [
+                      "¿Qué pensamos que necesitan? ¿Qué necesitamos nosotros/as?",
+                      "¿De qué forma podemos usar tecnología como apoyo?",
+                      "¿Cómo podemos colaborar para que se sientan seguros/as?",
+                      "¿Cómo favorecemos vínculos sociales con compañeros/as?"
+                    ]
+                  },
+                  {
+                    categoria: "Sobre las familias",
+                    preguntas: [
+                      "¿Cómo pensamos el vínculo con las familias?",
+                      "¿En qué medida podemos generar colaboración con ellas?",
+                      "¿Qué información necesitan las familias de nosotros?"
+                    ]
+                  }
+                ].map((seccion, idx) => (
+                  <div key={idx} style={{
+                    background: 'white',
+                    borderRadius: '12px',
+                    padding: '2rem',
+                    marginBottom: '1.5rem',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                    borderLeft: `5px solid ${['#74b9ff', '#fd79a8', '#00b894', '#ffeaa7'][idx % 4]}`
+                  }}>
+                    <h3 style={{ fontSize: '1.6rem', color: '#2d3436', marginBottom: '1.5rem', fontWeight: 600 }}>
+                      {seccion.categoria}
+                    </h3>
+                    <ul style={{ listStyle: 'none', padding: 0 }}>
+                      {seccion.preguntas.map((pregunta, qIdx) => (
+                        <li key={qIdx} style={{
+                          padding: '1rem',
+                          background: '#f8f9fa',
+                          borderRadius: '8px',
+                          marginBottom: '0.75rem',
+                          fontSize: '1.1rem',
+                          color: '#2d3436',
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          gap: '0.75rem'
+                        }}>
+                          <Icon name="CheckCircle" size={20} style={{ color: ['#74b9ff', '#fd79a8', '#00b894', '#ffeaa7'][idx % 4], flexShrink: 0, marginTop: '0.2rem' }} />
+                          <span>{pregunta}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+
+                <div style={{
+                  background: 'linear-gradient(135deg, #6c5ce7, #a29bfe)',
+                  borderRadius: '12px',
+                  padding: '2rem',
+                  color: 'white',
+                  marginTop: '2rem'
+                }}>
+                  <h3 style={{ fontSize: '1.8rem', marginBottom: '1rem' }}>Recordá siempre:</h3>
+                  <ul style={{ fontSize: '1.1rem', lineHeight: 1.8, paddingLeft: '1.5rem' }}>
+                    <li>Escuchar a los estudiantes: preguntarles directamente</li>
+                    <li>Hablar con naturalidad sobre los apoyos</li>
+                    <li>Recuperar la diferencia como algo neutral o positivo</li>
+                    <li>Revisar tiempos escolares y flexibilizarlos cuando sea necesario</li>
+                  </ul>
+                </div>
+              </div>
+            )}
+          </main>
+        </div>
+      );
+    }
+
+    // Renderizar la aplicación
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<EducacionInclusiva />);
+  </script>
+</body>
+</html>
