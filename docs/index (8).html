@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Educación Inclusiva BBA - Herramientas para Docentes</title>
+  <meta name="description" content="Herramientas interactivas para adaptar la enseñanza con Leila y Salvador desde la perspectiva de educación inclusiva">
+  
+  <!-- React y Babel -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Crimson Pro', serif;
+      margin: 0;
+      padding: 0;
+    }
+    
+    #root {
+      min-height: 100vh;
+    }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    button {
+      font-family: 'Crimson Pro', serif;
+    }
+    
+    a {
+      transition: all 0.3s ease;
+    }
+    
+    a:hover {
+      opacity: 0.8;
+    }
+
+    /* Scrollbar personalizada */
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 5px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: #555;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    // Iconos simplificados (lucide-react alternativo)
+    const Icon = ({ name, size = 24, ...props }) => {
+      const icons = {
+        ChevronRight: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><polyline points="9 18 15 12 9 6"></polyline></svg>,
+        BookOpen: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>,
+        Users: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>,
+        Lightbulb: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><line x1="9" y1="18" x2="15" y2="18"></line><line x1="10" y1="22" x2="14" y2="22"></line><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path></svg>,
+        CheckCircle: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>,
+        Mail: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>,
+        ArrowRight: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>,
+        Heart: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>,
+        Sparkles: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path><path d="M5 3v4"></path><path d="M19 17v4"></path><path d="M3 5h4"></path><path d="M17 19h4"></path></svg>,
+        Eye: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>,
+        AlertCircle: <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>,
+      };
+      return icons[name] || null;
+    };
+
+    // Datos de ejemplos de adaptación
+    const ejemplosAdaptacion = [
+      {
+        materia: "Inglés",
+        titulo: "Present Perfect - Experiencias de vida",
+        original: {
+          consigna: "Write a composition about your life experiences using present perfect. Include at least 5 different experiences you have had. Use time expressions like 'ever', 'never', 'already', 'yet'. Minimum 150 words. Hand in your work next class.",
+          problemas: [
+            { texto: "Write a composition", razon: "Formato abierto sin estructura clara" },
+            { texto: "at least 5 different experiences", razon: "Puede resultar abrumador pensar 5 experiencias a la vez" },
+            { texto: "Minimum 150 words", razon: "La extensión puede convertirse en barrera sin aportar al objetivo de aprendizaje" },
+            { texto: "Use time expressions like...", razon: "Se asume comprensión previa sin explicitar su uso" }
+          ]
+        },
+        adaptada: {
+          consigna: "Vamos a practicar Present Perfect hablando de experiencias de vida\n\n🎯 OBJETIVO: Usar Present Perfect para contar qué hiciste y qué no hiciste en tu vida\n\n📝 TU TAREA:\n\n1️⃣ PASO 1: Elegí 3 experiencias de esta lista (o inventá las tuyas):\n• Viajar a otro país / otra provincia\n• Probar comida de otro lugar\n• Aprender algo nuevo (instrumento, deporte, idioma)\n• Conocer a alguien especial\n• Ver algo impresionante\n\n2️⃣ PASO 2: Para cada experiencia, completá:\n\n✅ I have... (lo que SÍ hiciste)\n❌ I have never... (lo que NO hiciste)\n⏰ Agregá: ever / never / already / yet / recently\n\nEJEMPLO:\n✅ I have visited Bariloche with my family.\n❌ I have never tried sushi.\n\n3️⃣ PASO 3: Elegí cómo mostrar tu trabajo:\n• Por escrito (mínimo 3 oraciones por experiencia)\n• Grabando un audio (1-2 minutos)\n• Presentación oral en clase\n• Combinado: texto + imágenes\n\n💡 AYUDAS DISPONIBLES:\n• Banco de verbos en present perfect en el pizarrón\n• Podés trabajar en parejas para armar las oraciones\n• Revisamos juntos antes de entregar",
+          mejoras: [
+            { aspecto: "Objetivo explícito", explicacion: "Se aclara desde el inicio qué se espera lograr con la tarea" },
+            { aspecto: "Estructura paso a paso", explicacion: "La tarea se divide en pasos concretos y secuenciados" },
+            { aspecto: "Opciones de experiencias", explicacion: "Se ofrecen ideas como punto de partida para reducir la carga cognitiva inicial" },
+            { aspecto: "Ejemplo concreto", explicacion: "Se muestra un modelo de cómo debe verse el resultado" },
+            { aspecto: "Múltiples formatos de entrega", explicacion: "No se limita a escritura; permite audio, oral o combinado" },
+            { aspecto: "Apoyos explicitados", explicacion: "Se menciona el banco de verbos y la posibilidad de trabajo colaborativo" },
+            { aspecto: "Flexibilidad en extensión", explicacion: "Se elimina el requisito de palabras y se enfoca en el objetivo lingüístico" }
+          ]
+        }
+      },
+      {
+        materia: "Francés",
+        titulo: "Décrire sa chambre (Describir tu habitación)",
+        original: {
+          consigna: "Rédigez un texte descriptif de votre chambre en utilisant les prépositions de lieu (sur, sous, devant, derrière, à côté de, entre) et le vocabulaire des meubles vu en classe. Utilisez au moins 10 phrases complètes. N'oubliez pas d'utiliser 'il y a' et les articles définis/indéfinis correctement.",
+          problemas: [
+            { texto: "Rédigez un texte descriptif", razon: "Consigna en francés completo puede ser barrera para quienes aún no leen fluidamente" },
+            { texto: "au moins 10 phrases complètes", razon: "Cantidad fija sin considerar variabilidad en ritmos de aprendizaje" },
+            { texto: "N'oubliez pas d'utiliser...", razon: "Múltiples reglas gramaticales simultáneas sin priorización" },
+            { texto: "le vocabulaire des meubles vu en classe", razon: "No se especifica cuál ni se ofrece apoyo para recordarlo" }
+          ]
+        },
+        adaptada: {
+          consigna: "Vamos a describir nuestra habitación en francés 🛏️\n\n🎯 OBJETIVO: Usar preposiciones de lugar (sur, sous, devant, derrière...) para decir dónde están las cosas\n\n📝 LA ACTIVIDAD:\n\n1️⃣ Elegí 5 objetos o muebles de tu habitación\n\nBanco de palabras (si necesitás):\nle lit (cama) • la table (mesa) • la chaise (silla) • l'armoire (armario)\nla lampe (lámpara) • le bureau (escritorio) • la fenêtre (ventana)\n\n2️⃣ Escribí (o dictá) dónde está cada cosa usando:\n\nIl y a + [cosa] + [preposición] + [lugar]\n\nEJEMPLOS:\n• Il y a un lit près de la fenêtre (Hay una cama cerca de la ventana)\n• Il y a une lampe sur la table (Hay una lámpara sobre la mesa)\n\n3️⃣ PARA SUBIR DE NIVEL (opcional):\nAgregá colores o descripción:\n• Il y a un grand lit bleu près de la fenêtre\n\n💡 FORMAS DE TRABAJAR:\n• Dibujá tu habitación y escribí las descripciones alrededor\n• Hacé un plano simple con flechas y etiquetas\n• Escribí las frases en una lista\n• Grabá un audio describiendo mientras mostrás fotos\n\n🔧 APOYOS:\n• Tabla de preposiciones con dibujitos en el aula\n• Podés consultar con un/a compañero/a\n• Revisión grupal antes de entregar",
+          mejoras: [
+            { aspecto: "Consigna bilingüe", explicacion: "Introducción en español para asegurar comprensión, producción en francés" },
+            { aspecto: "Banco de vocabulario", explicacion: "Se ofrece un recordatorio del vocabulario necesario" },
+            { aspecto: "Estructura de oración modelizada", explicacion: "Se da la estructura gramatical explícita con ejemplos" },
+            { aspecto: "Diferenciación opcional", explicacion: "Quien pueda/quiera puede agregar complejidad sin ser obligatorio" },
+            { aspecto: "Variedad de formatos", explicacion: "Permite dibujo + texto, plano, lista, audio - cada quien elige según su fortaleza" },
+            { aspecto: "Foco en el objetivo", explicacion: "Se prioriza el uso de preposiciones por sobre cantidad de frases" },
+            { aspecto: "Apoyos visuales", explicacion: "Referencia a tabla de preposiciones con imágenes disponible en el aula" }
+          ]
+        }
+      },
+      {
+        materia: "Inglés",
+        titulo: "Comparatives and Superlatives - My city",
+        original: {
+          consigna: "Write a paragraph comparing your city to other cities in Argentina. Use at least 8 comparative adjectives and 4 superlative adjectives. Remember the rules: add -er/-est for short adjectives, and use more/most for long adjectives. Avoid repetition. Include reasons for your comparisons. Due on Friday.",
+          problemas: [
+            { texto: "at least 8 comparative... 4 superlative", razon: "Cantidad específica puede generar foco en completar números en vez del sentido" },
+            { texto: "Remember the rules: add -er...", razon: "Explicación gramatical dentro de la consigna la hace densa y confusa" },
+            { texto: "Avoid repetition", razon: "Prohibición sin andamiaje de cómo lograrlo" },
+            { texto: "Include reasons", razon: "Agregado al final como algo extra, no integrado a la tarea" }
+          ]
+        },
+        adaptada: {
+          consigna: "Vamos a comparar ciudades usando comparativos y superlativos 🏙️\n\n🎯 OBJETIVO: Usar -er/-est y more/most para comparar lugares\n\n📝 LA PROPUESTA:\n\n1️⃣ ELEGÍ 2 o 3 ciudades para comparar (puede ser tu ciudad + otras)\n\n2️⃣ PENSÁ: ¿En qué se diferencian?\n\nIdeas (elegí al menos 3):\n• Tamaño (big/small)\n• Temperatura (hot/cold)\n• Movimiento (busy/quiet)\n• Costo (expensive/cheap)\n• Belleza (beautiful/ugly)\n• Interés (interesting/boring)\n\n3️⃣ ARMÁ TUS COMPARACIONES:\n\nPara comparar 2 ciudades:\n[Ciudad A] is bigger than [Ciudad B]\n[Ciudad A] is more expensive than [Ciudad B]\n\nPara decir \"la más\":\n[Ciudad] is the biggest city in Argentina\n[Ciudad] is the most beautiful city I know\n\n4️⃣ AGREGÁ: ¿Por qué?\n\nEJEMPLO COMPLETO:\nBuenos Aires is bigger than Mendoza because it has more people.\nMendoza is more beautiful than Buenos Aires because it has mountains.\n\n💡 OPCIONES DE FORMATO:\n• Tabla comparativa con columnas\n• Texto con párrafos (1 párrafo por categoría)\n• Presentación con imágenes + frases\n• Video corto comparando\n\n🔧 HERRAMIENTAS:\n• Lista de adjetivos comunes en el pizarrón (con la forma -er/-est ya hecha)\n• Podés buscar info online si no conocés las ciudades\n• Trabajo en duplas permitido para armar las ideas",
+          mejoras: [
+            { aspecto: "Cantidad flexible", explicacion: "Se pide 'al menos 3' categorías en lugar de números exactos de adjetivos" },
+            { aspecto: "Categorías sugeridas", explicacion: "Se ofrecen aspectos a comparar para facilitar el inicio" },
+            { aspecto: "Reglas gramaticales separadas", explicacion: "La estructura se muestra con ejemplos, no con explicación técnica" },
+            { aspecto: "Integración del 'por qué'", explicacion: "El razonamiento se incorpora desde el ejemplo, no como agregado" },
+            { aspecto: "Apoyo con lista de adjetivos", explicacion: "Referencia a material ya procesado en el aula" },
+            { aspecto: "Formatos diversos", explicacion: "Permite elegir entre tabla, texto, presentación o video" },
+            { aspecto: "Proceso explicitado", explicacion: "Cada paso es claro: elegir, pensar, armar, agregar - reduce carga cognitiva" }
+          ]
+        }
+      },
+      {
+        materia: "Portugués",
+        titulo: "Rotina diária (Rutina diaria)",
+        original: {
+          consigna: "Escreva um texto sobre sua rotina diária usando verbos reflexivos (acordar-se, levantar-se, vestir-se, pentear-se, etc.) e expressões de tempo (de manhã, à tarde, à noite). O texto deve ter no mínimo 120 palavras e estar no presente do indicativo. Lembre-se de conjugar corretamente os verbos reflexivos com os pronomes.",
+          problemas: [
+            { texto: "Escreva um texto", razon: "Consigna íntegramente en portugués sin scaffold" },
+            { texto: "no mínimo 120 palavras", razon: "Requisito de extensión sin relación con objetivo pedagógico" },
+            { texto: "Lembre-se de conjugar corretamente...", razon: "Recordatorio gramatical complejo al final de una consigna ya densa" },
+            { texto: "verbos reflexivos... presente do indicativo", razon: "Terminología técnica sin explicitar qué significan en la práctica" }
+          ]
+        },
+        adaptada: {
+          consigna: "Vamos a contar nuestra rutina en portugués ⏰\n\n🎯 OBJETIVO: Usar verbos reflexivos (acordar-me, levantar-me, vestir-me...) para contar qué hacés cada día\n\n📝 LA ACTIVIDAD:\n\n1️⃣ ELEGÍ 5 momentos de tu día\n\nEjemplos:\n• Mañana: despertar, desayunar, prepararte\n• Tarde: almorzar, estudiar, entrenar\n• Noche: cenar, bañarte, dormir\n\n2️⃣ PARA CADA MOMENTO, COMPLETÁ:\n\n[Hora] + Eu + [verbo reflexivo] + [info extra]\n\nEJEMPLOS:\nDe manhã, eu me acordo às 7 horas. (me despierto a las 7)\nÀ noite, eu me deito às 23 horas. (me acuesto a las 23)\n\n📌 VERBOS ÚTILES (ya conjugados para \"eu\"):\nme acordo (me despierto)\nme levanto (me levanto)\nme visto (me visto)\nme penteio (me peino)\nme banho (me baño)\nme deito (me acuesto)\n\n3️⃣ ARMÁ TU RUTINA:\n\nPodés hacerlo como:\n• Lista de frases (una por momento)\n• Línea de tiempo dibujada con horarios\n• Historieta con dibujitos + texto\n• Audio contando tu rutina\n\n💡 PARA QUIEN QUIERA MÁS:\nAgregá detalles: con quién, dónde, cómo te sentís\n\"De manhã, eu me acordo às 7 e me sinto cansado\"\n\n🔧 APOYOS:\n• Tabla de verbos reflexivos en el aula\n• Podés preguntar cómo se dice algo que no sabés\n• Revisión antes de entregar",
+          mejoras: [
+            { aspecto: "Andamiaje bilingüe", explicacion: "Consigna en español con ejemplos en portugués traducidos" },
+            { aspecto: "Verbos pre-conjugados", explicacion: "Se ofrece lista de verbos ya en la forma correcta para eliminar barrera gramatical" },
+            { aspecto: "Estructura de frase clara", explicacion: "Fórmula explícita [hora]+[sujeto]+[verbo]+[extra]" },
+            { aspecto: "Ejemplos traducidos", explicacion: "Cada ejemplo incluye la traducción para asegurar comprensión" },
+            { aspecto: "Opciones de formato", explicacion: "Lista, línea de tiempo, historieta, audio - cada quien elige" },
+            { aspecto: "Extensión por contenido", explicacion: "Se pide 5 momentos en lugar de cantidad de palabras" },
+            { aspecto: "Diferenciación opcional", explicacion: "Quien puede/quiere agregar complejidad sin ser obligatorio para todos" }
+          ]
+        }
+      },
+      {
+        materia: "Inglés",
+        titulo: "Future plans - Going to",
+        original: {
+          consigna: "Write about your plans for next year using 'going to' for future. Explain at least 5 plans you have. Be specific about when and where. Use different subjects (I, we, my family, etc.). Include both affirmative and negative sentences. Write between 100-150 words. Check your grammar before submitting.",
+          problemas: [
+            { texto: "at least 5 plans", razon: "Puede ser difícil pensar tantos planes concretos" },
+            { texto: "Be specific about when and where", razon: "Múltiples requisitos que pueden dificultar el inicio" },
+            { texto: "Use different subjects", razon: "Requisito formal que no aporta al objetivo de usar 'going to'" },
+            { texto: "Include both affirmative and negative", razon: "Agregado que complejiza sin andamiaje" },
+            { texto: "Check your grammar", razon: "Indicación vaga al final" }
+          ]
+        },
+        adaptada: {
+          consigna: "Vamos a hablar de planes futuros con 'going to' 🔮\n\n🎯 OBJETIVO: Usar 'going to' para contar qué vas a hacer (y qué NO vas a hacer)\n\n📝 LA PROPUESTA:\n\n1️⃣ PENSÁ EN 3 PLANES para el año que viene\n\nÁreas para inspirarte:\n• Estudios (¿qué materias? ¿algún curso?)\n• Vacaciones (¿viaje? ¿quedarte?)\n• Actividades (¿deporte? ¿hobby? ¿trabajo?)\n\n2️⃣ PARA CADA PLAN:\n\n✅ Lo que SÍ vas a hacer:\nI'm going to... / We're going to...\n\n❌ Lo que NO vas a hacer (opcional):\nI'm not going to...\n\nEJEMPLOS:\n✅ I'm going to study more English next year.\n✅ My family is going to travel to Brazil in January.\n❌ I'm not going to play football this year because I want to try basketball.\n\n3️⃣ AGREGÁ UN DETALLE:\n¿Cuándo? ¿Dónde? ¿Por qué?\n\n💡 FORMAS DE MOSTRAR TUS PLANES:\n• Lista escrita (3 planes)\n• Dibujo tipo \"comic\" con texto\n• Presentación oral (1-2 min)\n• Mapa mental con imágenes + frases\n\n🔧 AYUDA:\n• Frases modelo en el pizarrón\n• Banco de verbos útiles: study, travel, visit, learn, start, try, change, continue\n• Podés trabajar en parejas para intercambiar ideas\n\n📝 ANTES DE ENTREGAR:\nLeé tus planes y chequeá:\n✓ ¿Usé 'going to' en todos?\n✓ ¿Está claro qué voy a hacer?",
+          mejoras: [
+            { aspecto: "Reducción de cantidad", explicacion: "3 planes en lugar de 5 para bajar presión sin perder el objetivo" },
+            { aspecto: "Inspiración por áreas", explicacion: "Sugerencias de temas para facilitar el pensamiento" },
+            { aspecto: "Negativos opcionales", explicacion: "Se muestra cómo hacerlo pero no es obligatorio" },
+            { aspecto: "Foco en el objetivo", explicacion: "Los detalles (cuándo/dónde) son sugeridos pero no requeridos" },
+            { aspecto: "Banco de verbos", explicacion: "Lista de verbos útiles reduce barrera léxica" },
+            { aspecto: "Autorevisión guiada", explicacion: "En lugar de \"check your grammar\", checklist específico y breve" },
+            { aspecto: "Formatos múltiples", explicacion: "Permite expresión escrita, oral, visual o combinada" }
+          ]
+        }
+      }
+    ];
+        {
+          materia: "Lengua",
+          titulo: "Análisis de cuento",
+          original: {
+            consigna: "Leé el cuento 'El almohadón de plumas' de Horacio Quiroga y respondé las siguientes preguntas: 1) ¿Cuál es el conflicto principal del relato? 2) Analizá la caracterización psicológica de Alicia en los primeros tres párrafos. 3) Identificá y explicá tres recursos literarios utilizados por el autor para generar suspenso. Entregá un texto de mínimo 2 páginas con tus respuestas.",
+            problemas: [
+              { texto: "Leé el cuento", razon: "Barrera: lectura convencional como única vía de acceso" },
+              { texto: "Analizá la caracterización psicológica", razon: "Supuesto escondido: se asume comprensión del término sin explicitar" },
+              { texto: "mínimo 2 páginas", razon: "Barrera: escritura convencional extensa sin opciones alternativas" },
+              { texto: "respondé las siguientes preguntas: 1) 2) 3)", razon: "Muchas preguntas juntas, puede ser abrumador" }
+            ]
+          },
+          adaptada: {
+            consigna: "Vamos a trabajar con el cuento 'El almohadón de plumas' de Horacio Quiroga.\n\n📖 ACCESO AL CUENTO (elegí la forma que prefieras):\n• Escuchá el audio del cuento (te lo paso)\n• Leé el cuento en tu tablet (tipografía tamaño 14)\n• Seguí la lectura mientras alguien lee en voz alta\n\n❓ PREGUNTA 1: El conflicto principal\n¿Qué problema enfrenta Alicia en el cuento? Podés responder:\n• Dictando tu respuesta\n• Escribiendo palabras clave\n• Usando imágenes del cuento como apoyo\n\n❓ PREGUNTA 2: ¿Cómo es Alicia?\nEn los primeros párrafos, ¿cómo describe el autor a Alicia? ¿Qué palabras usa para describir cómo se siente?\n(Podemos trabajar juntos/as para identificar estas palabras en el texto)\n\n❓ PREGUNTA 3: ¿Cómo genera miedo el autor?\nEncontrá 2 momentos del cuento donde sentiste suspenso o miedo. Podés:\n• Marcarlos en el texto\n• Contarme oralmente por qué te generaron esa sensación\n• Dibujar esos momentos\n\nForma de entrega: elegí cómo querés mostrar tu trabajo (escrito, oral con grabación, combinado).",
+            mejoras: [
+              { aspecto: "Opciones de lectura", explicacion: "Se ofrecen múltiples formas de acceder al texto: audio, lectura digital, lectura compartida" },
+              { aspecto: "Preguntas separadas", explicacion: "Cada pregunta está claramente delimitada con un emoji para identificarlas fácilmente" },
+              { aspecto: "Términos explicitados", explicacion: "En lugar de 'caracterización psicológica', se pregunta directamente '¿Cómo es Alicia?'" },
+              { aspecto: "Opciones de respuesta", explicacion: "Se permite dictado, palabras clave, apoyo visual - no solo escritura convencional" },
+              { aspecto: "Flexibilidad en extensión", explicacion: "Se elimina el requisito de '2 páginas' y se valora el contenido sobre la forma" },
+              { aspecto: "Andamiaje", explicacion: "Se ofrece trabajar en conjunto para pregunta 2, reconociendo que puede necesitar apoyo" }
+            ]
+          }
+        },
+        {
+          materia: "Ciencias Sociales",
+          titulo: "Revolución Industrial",
+          original: {
+            consigna: "Investigá sobre la Revolución Industrial en Inglaterra (1760-1840). Elaborá un informe que incluya: causas del proceso, principales innovaciones tecnológicas, transformaciones sociales y económicas, y consecuencias en la clase trabajadora. Incluí bibliografía consultada. Mínimo 3 carillas.",
+            problemas: [
+              { texto: "Investigá sobre", razon: "No se explicita dónde ni cómo investigar" },
+              { texto: "Elaborá un informe", razon: "Formato muy abierto, puede generar incertidumbre" },
+              { texto: "que incluya: causas... innovaciones... transformaciones... consecuencias", razon: "Muchos temas juntos sin estructura clara" },
+              { texto: "Mínimo 3 carillas", razon: "Barrera de escritura convencional extensa" }
+            ]
+          },
+          adaptada: {
+            consigna: "Vamos a conocer la Revolución Industrial en Inglaterra (1760-1840)\n\n📚 MATERIALES:\n• Videos cortos que te voy a compartir (10 min c/u)\n• Imágenes de fábricas y máquinas de la época\n• Texto adaptado con las ideas principales\n\nElegí al menos 2 fuentes para trabajar.\n\n🎯 TU TAREA:\nVamos a hacer un afiche digital o en papel sobre la Revolución Industrial.\nTu afiche debe mostrar:\n\n1️⃣ ¿POR QUÉ pasó? (2-3 causas principales)\n→ Podés usar palabras clave + imágenes\n\n2️⃣ ¿QUÉ inventos hubo?\n→ Elegí 2 inventos y mostralos con imagen + descripción corta\n\n3️⃣ ¿CÓMO cambió la vida de los trabajadores?\n→ Podés hacer un 'antes/después' con dibujos o imágenes\n\n💡 FORMAS DE TRABAJAR:\n• En dupla con un/a compañero/a que elijas\n• Usando Canva, PowerPoint, o afiche en papel\n• Podés dictar textos o escribir palabras clave\n• Yo te ayudo a organizar las ideas antes de empezar\n\n📤 Al final: presentás tu afiche a la clase (2-3 minutos, podés leer de tu afiche)",
+            mejoras: [
+              { aspecto: "Materiales específicos", explicacion: "Se indica exactamente qué fuentes usar (videos, imágenes, texto adaptado)" },
+              { aspecto: "Formato concreto", explicacion: "En lugar de 'informe', se pide un afiche con estructura visual clara" },
+              { aspecto: "Organización por pasos", explicacion: "Los temas están numerados y separados visualmente" },
+              { aspecto: "Apoyo de pares", explicacion: "Se sugiere trabajo en dupla" },
+              { aspecto: "Opciones tecnológicas", explicacion: "Múltiples herramientas digitales que Leila maneja bien" },
+              { aspecto: "Presentación oral", explicacion: "Oportunidad de mostrar lo aprendido sin depender solo de lo escrito" },
+              { aspecto: "Andamiaje previo", explicacion: "Oferta de organizar ideas juntos antes de producir" }
+            ]
+          }
+        }
+      ]
+    };
+
+    // Componente del Adaptador Interactivo (ahora sin selección de estudiante)
+    function AdaptadorInteractivo() {
+      const [selectedExample, setSelectedExample] = useState(0);
+      const [visualizationStep, setVisualizationStep] = useState(0);
+      const [showComparison, setShowComparison] = useState(false);
+
+      const ejemplo = ejemplosAdaptacion[selectedExample];
+      const accentColor = '#6c5ce7';
+
+      return (
+        <div style={{ animation: 'fadeIn 0.5s ease' }}>
+          <h2 style={{ fontSize: '2.5rem', color: '#2d3436', marginBottom: '1rem', fontWeight: 700 }}>
+            Construcción de Apoyos: Ejemplos de Lenguas Extranjeras
+          </h2>
+          <p style={{ fontSize: '1.2rem', color: '#636e72', marginBottom: '2rem' }}>
+            Mirá cómo transformar consignas para que sean más accesibles para todo el grupo, sin perder riqueza pedagógica
+          </p>
+
+          {/* Selector de ejemplo */}
+          <div style={{
+            background: 'white',
+            borderRadius: '12px',
+            padding: '1.5rem',
+            marginBottom: '2rem',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
+          }}>
+            <label style={{ fontSize: '1.1rem', fontWeight: 600, color: '#2d3436', display: 'block', marginBottom: '0.75rem' }}>
+              Elegí un ejemplo:
+            </label>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+              {ejemplosAdaptacion.map((ej, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    setSelectedExample(idx);
+                    setVisualizationStep(0);
+                    setShowComparison(false);
+                  }}
+                  style={{
+                    padding: '1rem',
+                    border: `2px solid ${selectedExample === idx ? accentColor : '#dfe6e9'}`,
+                    background: selectedExample === idx ? `${accentColor}15` : 'white',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transition: 'all 0.3s ease'
+                  }}
+                >
+                  <div style={{ fontSize: '0.9rem', color: '#636e72', marginBottom: '0.25rem' }}>
+                    {ej.materia}
+                  </div>
+                  <div style={{ fontSize: '1.1rem', fontWeight: 600, color: '#2d3436' }}>
+                    {ej.titulo}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Visualización paso a paso */}
+          <div style={{
+            background: 'white',
+            borderRadius: '12px',
+            padding: '2rem',
+            marginBottom: '2rem',
+            boxShadow: '0 10px 40px rgba(0,0,0,0.1)'
+          }}>
+            <h3 style={{ fontSize: '1.8rem', color: '#2d3436', marginBottom: '1.5rem', fontWeight: 700 }}>
+              {ejemplo.materia}: {ejemplo.titulo}
+            </h3>
+
+            {/* Controles de visualización */}
+            <div style={{ 
+              display: 'flex', 
+              gap: '1rem', 
+              marginBottom: '2rem',
+              flexWrap: 'wrap'
+            }}>
+              <button
+                onClick={() => {
+                  setVisualizationStep(0);
+                  setShowComparison(false);
+                }}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  border: 'none',
+                  background: visualizationStep === 0 && !showComparison ? accentColor : '#dfe6e9',
+                  color: visualizationStep === 0 && !showComparison ? 'white' : '#2d3436',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  fontWeight: 600
+                }}
+              >
+                1. Consigna original
+              </button>
+              <button
+                onClick={() => {
+                  setVisualizationStep(1);
+                  setShowComparison(false);
+                }}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  border: 'none',
+                  background: visualizationStep === 1 && !showComparison ? accentColor : '#dfe6e9',
+                  color: visualizationStep === 1 && !showComparison ? 'white' : '#2d3436',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  fontWeight: 600
+                }}
+              >
+                2. Identificar barreras
+              </button>
+              <button
+                onClick={() => {
+                  setVisualizationStep(2);
+                  setShowComparison(false);
+                }}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  border: 'none',
+                  background: visualizationStep === 2 && !showComparison ? accentColor : '#dfe6e9',
+                  color: visualizationStep === 2 && !showComparison ? 'white' : '#2d3436',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  fontWeight: 600
+                }}
+              >
+                3. Consigna transformada
+              </button>
+              <button
+                onClick={() => {
+                  setShowComparison(true);
+                  setVisualizationStep(3);
+                }}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  border: 'none',
+                  background: showComparison ? accentColor : '#dfe6e9',
+                  color: showComparison ? 'white' : '#2d3436',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontSize: '1rem',
+                  fontWeight: 600,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}
+              >
+                <Icon name="Eye" size={18} />
+                Ver comparación
+              </button>
+            </div>
+
+            {/* PASO 1: Consigna Original */}
+            {visualizationStep === 0 && !showComparison && (
+              <div style={{ animation: 'fadeIn 0.5s ease' }}>
+                <div style={{
+                  padding: '1.5rem',
+                  background: '#f8f9fa',
+                  borderRadius: '12px',
+                  borderLeft: '5px solid #636e72'
+                }}>
+                  <div style={{ 
+                    fontSize: '0.9rem', 
+                    fontWeight: 600, 
+                    color: '#636e72', 
+                    marginBottom: '1rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px'
+                  }}>
+                    Consigna original
+                  </div>
+                  <div style={{ 
+                    fontSize: '1.1rem', 
+                    lineHeight: 1.8, 
+                    color: '#2d3436',
+                    whiteSpace: 'pre-wrap',
+                    background: 'white',
+                    padding: '1.5rem',
+                    borderRadius: '8px'
+                  }}>
+                    {ejemplo.original.consigna}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* PASO 2: Identificar Barreras */}
+            {visualizationStep === 1 && !showComparison && (
+              <div style={{ animation: 'fadeIn 0.5s ease' }}>
+                <div style={{
+                  padding: '1.5rem',
+                  background: '#fff3cd',
+                  borderRadius: '12px',
+                  borderLeft: '5px solid #ffc107',
+                  marginBottom: '1.5rem'
+                }}>
+                  <div style={{ 
+                    fontSize: '0.9rem', 
+                    fontWeight: 600, 
+                    color: '#856404', 
+                    marginBottom: '1rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem'
+                  }}>
+                    <Icon name="AlertCircle" size={20} />
+                    Barreras identificadas
+                  </div>
+                  <div style={{ 
+                    fontSize: '1.1rem', 
+                    lineHeight: 1.8, 
+                    color: '#2d3436',
+                    whiteSpace: 'pre-wrap',
+                    background: 'white',
+                    padding: '1.5rem',
+                    borderRadius: '8px'
+                  }}>
+                    {ejemplo.original.consigna}
+                  </div>
+                </div>
+
+                <div>
+                  <h4 style={{ fontSize: '1.3rem', color: '#2d3436', marginBottom: '1rem', fontWeight: 600 }}>
+                    ¿Qué dificulta el acceso o la participación?
+                  </h4>
+                  {ejemplo.original.problemas.map((problema, idx) => (
+                    <div key={idx} style={{
+                      padding: '1rem',
+                      background: 'white',
+                      borderRadius: '8px',
+                      marginBottom: '0.75rem',
+                      borderLeft: `4px solid #ff7675`
+                    }}>
+                      <div style={{ fontWeight: 600, color: '#2d3436', marginBottom: '0.5rem' }}>
+                        "{problema.texto}"
+                      </div>
+                      <div style={{ color: '#636e72', fontSize: '1rem' }}>
+                        {problema.razon}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* PASO 3: Consigna Transformada */}
+            {visualizationStep === 2 && !showComparison && (
+              <div style={{ animation: 'fadeIn 0.5s ease' }}>
+                <div style={{
+                  padding: '1.5rem',
+                  background: `${accentColor}15`,
+                  borderRadius: '12px',
+                  borderLeft: `5px solid ${accentColor}`,
+                  marginBottom: '1.5rem'
+                }}>
+                  <div style={{ 
+                    fontSize: '0.9rem', 
+                    fontWeight: 600, 
+                    color: accentColor, 
+                    marginBottom: '1rem',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px'
+                  }}>
+                    Consigna transformada
+                  </div>
+                  <div style={{ 
+                    fontSize: '1.1rem', 
+                    lineHeight: 1.8, 
+                    color: '#2d3436',
+                    whiteSpace: 'pre-wrap',
+                    background: 'white',
+                    padding: '1.5rem',
+                    borderRadius: '8px'
+                  }}>
+                    {ejemplo.adaptada.consigna}
+                  </div>
+                </div>
+
+                <div>
+                  <h4 style={{ fontSize: '1.3rem', color: '#2d3436', marginBottom: '1rem', fontWeight: 600 }}>
+                    ¿Qué apoyos se construyeron?
+                  </h4>
+                  {ejemplo.adaptada.mejoras.map((mejora, idx) => (
+                    <div key={idx} style={{
+                      padding: '1rem',
+                      background: 'white',
+                      borderRadius: '8px',
+                      marginBottom: '0.75rem',
+                      borderLeft: `4px solid ${accentColor}`
+                    }}>
+                      <div style={{ fontWeight: 600, color: accentColor, marginBottom: '0.5rem' }}>
+                        ✓ {mejora.aspecto}
+                      </div>
+                      <div style={{ color: '#636e72', fontSize: '1rem' }}>
+                        {mejora.explicacion}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* COMPARACIÓN LADO A LADO */}
+            {showComparison && (
+              <div style={{ animation: 'fadeIn 0.5s ease' }}>
+                <div style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                  gap: '1.5rem'
+                }}>
+                  <div>
+                    <h4 style={{ 
+                      fontSize: '1.3rem', 
+                      color: '#636e72', 
+                      marginBottom: '1rem', 
+                      fontWeight: 600,
+                      textAlign: 'center'
+                    }}>
+                      ❌ Antes
+                    </h4>
+                    <div style={{
+                      padding: '1.5rem',
+                      background: '#f8f9fa',
+                      borderRadius: '12px',
+                      borderLeft: '5px solid #636e72',
+                      minHeight: '400px'
+                    }}>
+                      <div style={{ 
+                        fontSize: '1rem', 
+                        lineHeight: 1.7, 
+                        color: '#2d3436',
+                        whiteSpace: 'pre-wrap'
+                      }}>
+                        {ejemplo.original.consigna}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 style={{ 
+                      fontSize: '1.3rem', 
+                      color: accentColor, 
+                      marginBottom: '1rem', 
+                      fontWeight: 600,
+                      textAlign: 'center'
+                    }}>
+                      ✓ Después
+                    </h4>
+                    <div style={{
+                      padding: '1.5rem',
+                      background: `${accentColor}15`,
+                      borderRadius: '12px',
+                      borderLeft: `5px solid ${accentColor}`,
+                      minHeight: '400px'
+                    }}>
+                      <div style={{ 
+                        fontSize: '1rem', 
+                        lineHeight: 1.7, 
+                        color: '#2d3436',
+                        whiteSpace: 'pre-wrap'
+                      }}>
+                        {ejemplo.adaptada.consigna}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Recordatorios clave */}
+          <div style={{
+            background: 'linear-gradient(135deg, #6c5ce7, #a29bfe)',
+            borderRadius: '12px',
+            padding: '2rem',
+            color: 'white'
+          }}>
+            <h3 style={{ fontSize: '1.8rem', marginBottom: '1rem' }}>💡 Claves para construir apoyos</h3>
+            <ul style={{ fontSize: '1.1rem', lineHeight: 1.8, paddingLeft: '1.5rem' }}>
+              <li>Mantener el desafío cognitivo para todos (no simplificar el contenido)</li>
+              <li>Ofrecer múltiples formas de acceso y expresión desde el diseño de la clase</li>
+              <li>Estructurar sin rigidizar</li>
+              <li>Aprovechar fortalezas e intereses de cada estudiante</li>
+              <li>Crear oportunidades para que todos aporten y sean reconocidos por sus pares</li>
+            </ul>
+          </div>
+        </div>
+      );
+    }
+    // Componente principal
+    function EducacionInclusiva() {
+      const [activeSection, setActiveSection] = useState('home');
+      const [selectedStudent, setSelectedStudent] = useState('leila');
+
+      // Datos de los estudiantes
+      const studentData = {
+        leila: {
+          name: "Leila",
+          curso: "6°B",
+          color: "#e17055",
+          apoyos: [
+            "Revisar consignas: explicitar supuestos escondidos",
+            "Preguntarle directamente si entendió la consigna",
+            "Promover trabajo colaborativo (no directivo)",
+            "Usar múltiples formas de lectura: pantalla, audio, imágenes",
+            "Apoyarse en sus intereses: manga, anime, Pokemon Go",
+            "Permitir dictado como forma de escritura válida"
+          ],
+          fortalezas: [
+            "Excelente lectora de imágenes",
+            "Conoce palabras en inglés por videojuegos",
+            "Le gusta la tecnología y las redes sociales",
+            "Expresiva con gestos y mirada",
+            "Puede dictar para registro escrito"
+          ],
+          consideraciones: [
+            "Puede parecer no prestar atención pero luego recupera contenidos",
+            "Vincular con compañeros por intereses compartidos",
+            "No confundir mirada con atención",
+            "Evaluar cuándo flexibilizar y cuándo sostener la propuesta"
+          ]
+        },
+        salvador: {
+          name: "Salvador",
+          curso: "6°C",
+          color: "#00b894",
+          apoyos: [
+            "Consignas claras: sin supuestos escondidos, preguntas simples",
+            "Estructurar la clase: explicitar organización al inicio",
+            "Promover trabajo colaborativo genuino",
+            "Usar respiraciones conscientes para autorregulación",
+            "Mapas conceptuales con imágenes como apoyo",
+            "Anticipar temas y organización de la clase"
+          ],
+          fortalezas: [
+            "Le gustan los mapas en geografía",
+            "Interés por apellidos (útil para Historia)",
+            "Puede desarrollar gusto por contenidos con buena didáctica",
+            "Repone contenidos trabajados en clase",
+            "Se siente cómodo pasando al pizarrón"
+          ],
+          consideraciones: [
+            "Puede abrumarse con sonidos fuertes o situaciones caóticas",
+            "Ansiedad por llegar tarde o ser último en la lista",
+            "Prestar atención a sus gestos como forma de expresión",
+            "Puede parecer desconectado pero luego retoma contenidos"
+          ]
+        }
+      };
+
+      // Fundamentos teóricos
+      const fundamentos = [
+        {
+          titulo: "Modelo social vs. modelo médico",
+          contenido: "El modelo social entiende la discapacidad como el resultado de barreras sociales, pedagógicas y culturales, y no como un déficit individual. Desde esta perspectiva, el desafío no es \"arreglar\" al estudiante, sino revisar las condiciones de enseñanza y las formas en que organizamos la vida escolar.\n\nEn lugar de centrarnos en lo que un estudiante no puede hacer, buscamos identificar qué barreras aparecen en las propuestas pedagógicas y cómo transformarlas para ampliar las posibilidades de participación y aprendizaje."
+        },
+        {
+          titulo: "Presencia, participación y logros",
+          contenido: "La inclusión va más allá de la presencia física en el aula. Implica pensar tres dimensiones que se sostienen entre sí:\n\n• PRESENCIA: No solo que los estudiantes estén en la escuela, sino que puedan habitar los espacios escolares de manera significativa.\n\n• PARTICIPACIÓN: La calidad de las experiencias educativas y de las interacciones en el aula. La pregunta central es: ¿cómo organizamos la enseñanza para que todos puedan involucrarse en las actividades de aprendizaje?\n\n• LOGROS: Los aprendizajes alcanzados. La evaluación no solo mide a los estudiantes, también permite revisar nuestras propuestas de enseñanza y ajustar las condiciones para que todos puedan aprender."
+        },
+        {
+          titulo: "Cambiar el punto de vista",
+          contenido: "La educación inclusiva implica un desplazamiento en la forma de mirar el aula.\n\nPasamos de las certezas sobre las imposibilidades del alumnado (modelo del déficit) a la construcción de condiciones pedagógicas y didácticas que amplíen las oportunidades de aprendizaje.\n\nLa pregunta deja de ser \"¿qué le pasa a este estudiante?\" para transformarse en \"¿qué podemos modificar en la enseñanza para que pueda participar y aprender?\"."
+        },
+        {
+          titulo: "La diferencia como valor",
+          contenido: "Las aulas son espacios inherentemente diversos. Ningún grupo es homogéneo: los estudiantes tienen distintos intereses, trayectorias, formas de aprender y modos de participar.\n\nDesde esta perspectiva, la diferencia no se entiende como un problema a resolver, sino como una característica propia de los grupos escolares.\n\nHablar con naturalidad sobre los apoyos, las distintas formas de aprender y las necesidades de cada estudiante permite construir climas de aula más colaborativos y menos estigmatizantes."
+        },
+        {
+          titulo: "Pensar la enseñanza en aulas diversas",
+          contenido: "En lugar de pensar la inclusión como \"adaptaciones\" para algunos estudiantes, proponemos pensar la enseñanza considerando la diversidad del grupo.\n\nEsto implica:\n• Anticipar situaciones que puedan generar dificultades\n• Construir apoyos pedagógicos dentro de la propuesta de clase\n• Ofrecer múltiples formas de acceso a los contenidos\n• Habilitar distintas formas de participación\n• Revisar las formas de evaluación\n\nMuchas veces pequeños ajustes en la organización de la clase permiten ampliar las posibilidades de participación para todos los estudiantes."
+        }
+      ];
+
+      const currentStudent = studentData[selectedStudent];
+
+      return (
+        <div style={{
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, #ffeaa7 0%, #fab1a0 50%, #ff7675 100%)'
+        }}>
+          {/* Header */}
+          <header style={{
+            background: 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(10px)',
+            borderBottom: '3px solid #2d3436',
+            padding: '1.5rem 2rem',
+            position: 'sticky',
+            top: 0,
+            zIndex: 100,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+          }}>
+            <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+              <h1 style={{
+                fontSize: '2.5rem',
+                fontWeight: 700,
+                color: '#2d3436',
+                marginBottom: '0.5rem',
+                letterSpacing: '-0.02em',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}>
+                <Icon name="Sparkles" size={32} style={{ color: '#e17055' }} />
+                Educación Inclusiva BBA
+              </h1>
+              <p style={{ color: '#636e72', fontSize: '1.1rem', margin: 0 }}>
+                Herramientas para adaptar la enseñanza con Leila y Salvador
+              </p>
+            </div>
+          </header>
+
+          {/* Navigation */}
+          <nav style={{
+            background: 'white',
+            borderBottom: '2px solid #dfe6e9',
+            position: 'sticky',
+            top: '85px',
+            zIndex: 99
+          }}>
+            <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', gap: '0.5rem', padding: '0.5rem 2rem', overflowX: 'auto' }}>
+              {[
+                { id: 'home', label: 'Inicio', icon: 'Heart' },
+                { id: 'fundamentos', label: 'Fundamentos', icon: 'BookOpen' },
+                { id: 'estudiantes', label: 'Estudiantes', icon: 'Users' },
+                { id: 'adaptador', label: 'Construcción de Apoyos', icon: 'Lightbulb' },
+                { id: 'preguntas', label: 'Preguntas Guía', icon: 'CheckCircle' }
+              ].map(nav => (
+                <button
+                  key={nav.id}
+                  onClick={() => setActiveSection(nav.id)}
+                  style={{
+                    padding: '0.75rem 1.5rem',
+                    border: 'none',
+                    background: activeSection === nav.id ? '#2d3436' : 'transparent',
+                    color: activeSection === nav.id ? 'white' : '#2d3436',
+                    cursor: 'pointer',
+                    borderRadius: '8px',
+                    fontSize: '1rem',
+                    fontWeight: 600,
+                    transition: 'all 0.3s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  <Icon name={nav.icon} size={18} />
+                  {nav.label}
+                </button>
+              ))}
+            </div>
+          </nav>
+
+          {/* Main Content */}
+          <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '3rem 2rem' }}>
+            
+            {/* HOME */}
+            {activeSection === 'home' && (
+              <div style={{ animation: 'fadeIn 0.5s ease' }}>
+                <div style={{
+                  background: 'white',
+                  borderRadius: '16px',
+                  padding: '3rem',
+                  boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
+                  marginBottom: '2rem'
+                }}>
+                  <h2 style={{ fontSize: '2.5rem', color: '#2d3436', marginBottom: '1.5rem', fontWeight: 700 }}>
+                    Bienvenidos/as
+                  </h2>
+                  <p style={{ fontSize: '1.2rem', lineHeight: 1.8, color: '#636e72', marginBottom: '1.5rem' }}>
+                    Este espacio busca acompañar a los docentes de 6° año en el diseño de propuestas de enseñanza en aulas donde conviven distintas trayectorias y modos de aprender.
+                  </p>
+                  <p style={{ fontSize: '1.2rem', lineHeight: 1.8, color: '#636e72', marginBottom: '2rem' }}>
+                    A partir de experiencias desarrolladas en el colegio, se presentan estrategias, ejemplos y reflexiones que muestran cómo es posible construir apoyos pedagógicos y organizar las clases considerando la diversidad del grupo.
+                  </p>
+
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                    gap: '1.5rem',
+                    marginTop: '2rem'
+                  }}>
+                    <div style={{
+                      padding: '1.5rem',
+                      background: 'linear-gradient(135deg, #74b9ff, #a29bfe)',
+                      borderRadius: '12px',
+                      color: 'white'
+                    }}>
+                      <Icon name="BookOpen" size={32} style={{ marginBottom: '1rem' }} />
+                      <h3 style={{ fontSize: '1.3rem', marginBottom: '0.5rem' }}>Fundamentos</h3>
+                      <p style={{ fontSize: '1rem', opacity: 0.9 }}>Marco teórico de educación inclusiva</p>
+                    </div>
+                    <div style={{
+                      padding: '1.5rem',
+                      background: 'linear-gradient(135deg, #fd79a8, #e17055)',
+                      borderRadius: '12px',
+                      color: 'white'
+                    }}>
+                      <Icon name="Users" size={32} style={{ marginBottom: '1rem' }} />
+                      <h3 style={{ fontSize: '1.3rem', marginBottom: '0.5rem' }}>Perfiles</h3>
+                      <p style={{ fontSize: '1rem', opacity: 0.9 }}>Conocé a Leila y Salvador</p>
+                    </div>
+                    <div style={{
+                      padding: '1.5rem',
+                      background: 'linear-gradient(135deg, #00b894, #55efc4)',
+                      borderRadius: '12px',
+                      color: 'white'
+                    }}>
+                      <Icon name="Lightbulb" size={32} style={{ marginBottom: '1rem' }} />
+                      <h3 style={{ fontSize: '1.3rem', marginBottom: '0.5rem' }}>Apoyos</h3>
+                      <p style={{ fontSize: '1rem', opacity: 0.9 }}>Ejemplos del colegio</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Contacto */}
+                <div style={{
+                  background: '#2d3436',
+                  borderRadius: '16px',
+                  padding: '2rem',
+                  color: 'white',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  gap: '1rem'
+                }}>
+                  <div>
+                    <h3 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>¿Dudas o consultas?</h3>
+                    <p style={{ opacity: 0.8, margin: 0 }}>Contactate con nosotros</p>
+                  </div>
+                  <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                        <Icon name="Mail" size={18} />
+                        <strong>Pilar Cobeñas</strong>
+                      </div>
+                      <a href="mailto:pilarcobenas@gmail.com" style={{ color: '#74b9ff', textDecoration: 'none' }}>
+                        pilarcobenas@gmail.com
+                      </a>
+                    </div>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                        <Icon name="Mail" size={18} />
+                        <strong>Francisco Rodríguez Gaitán</strong>
+                      </div>
+                      <p style={{ color: '#74b9ff', margin: 0 }}>
+                        franrgaitan@gmail.com
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* FUNDAMENTOS */}
+            {activeSection === 'fundamentos' && (
+              <div style={{ animation: 'fadeIn 0.5s ease' }}>
+                <h2 style={{ fontSize: '2.5rem', color: '#2d3436', marginBottom: '2rem', fontWeight: 700 }}>
+                  Fundamentos de Educación Inclusiva
+                </h2>
+                {fundamentos.map((item, idx) => (
+                  <div key={idx} style={{
+                    background: 'white',
+                    borderRadius: '12px',
+                    padding: '2rem',
+                    marginBottom: '1.5rem',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                    borderLeft: `5px solid ${['#74b9ff', '#fd79a8', '#00b894', '#ffeaa7'][idx % 4]}`
+                  }}>
+                    <h3 style={{ fontSize: '1.8rem', color: '#2d3436', marginBottom: '1rem', fontWeight: 600 }}>
+                      {item.titulo}
+                    </h3>
+                    <p style={{ fontSize: '1.1rem', lineHeight: 1.8, color: '#636e72' }}>
+                      {item.contenido}
+                    </p>
+                  </div>
+                ))}
+
+                <div style={{
+                  background: 'linear-gradient(135deg, #a29bfe, #6c5ce7)',
+                  borderRadius: '12px',
+                  padding: '2.5rem',
+                  color: 'white',
+                  marginTop: '2rem'
+                }}>
+                  <h3 style={{ fontSize: '2rem', marginBottom: '1rem' }}>Tres pilares de la inclusión</h3>
+                  <div style={{ display: 'grid', gap: '1rem', fontSize: '1.1rem' }}>
+                    <div>
+                      <strong>PRESENCIA</strong><br />
+                      ¿Cómo pasamos de la presencia física a una presencia plena en la vida del aula?
+                    </div>
+                    <div>
+                      <strong>PARTICIPACIÓN</strong><br />
+                      ¿Cómo pensamos las interacciones entre estudiantes y las dinámicas de trabajo en clase?
+                    </div>
+                    <div>
+                      <strong>LOGROS</strong><br />
+                      ¿Qué aprendizajes consideramos valiosos y cómo evaluamos esos procesos?
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ESTUDIANTES */}
+            {activeSection === 'estudiantes' && (
+              <div style={{ animation: 'fadeIn 0.5s ease' }}>
+                <h2 style={{ fontSize: '2.5rem', color: '#2d3436', marginBottom: '2rem', fontWeight: 700 }}>
+                  Conociendo a nuestros estudiantes
+                </h2>
+
+                {/* Selector */}
+                <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem' }}>
+                  <button
+                    onClick={() => setSelectedStudent('leila')}
+                    style={{
+                      flex: 1,
+                      padding: '1.5rem',
+                      border: `3px solid ${selectedStudent === 'leila' ? '#e17055' : '#dfe6e9'}`,
+                      background: selectedStudent === 'leila' ? '#e17055' : 'white',
+                      color: selectedStudent === 'leila' ? 'white' : '#2d3436',
+                      borderRadius: '12px',
+                      cursor: 'pointer',
+                      fontSize: '1.3rem',
+                      fontWeight: 600,
+                      transition: 'all 0.3s ease'
+                    }}
+                  >
+                    Leila - 6°B
+                  </button>
+                  <button
+                    onClick={() => setSelectedStudent('salvador')}
+                    style={{
+                      flex: 1,
+                      padding: '1.5rem',
+                      border: `3px solid ${selectedStudent === 'salvador' ? '#00b894' : '#dfe6e9'}`,
+                      background: selectedStudent === 'salvador' ? '#00b894' : 'white',
+                      color: selectedStudent === 'salvador' ? 'white' : '#2d3436',
+                      borderRadius: '12px',
+                      cursor: 'pointer',
+                      fontSize: '1.3rem',
+                      fontWeight: 600,
+                      transition: 'all 0.3s ease'
+                    }}
+                  >
+                    Salvador - 6°C
+                  </button>
+                </div>
+
+                {/* Perfil del estudiante */}
+                <div style={{
+                  background: 'white',
+                  borderRadius: '16px',
+                  padding: '2.5rem',
+                  boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
+                  borderTop: `6px solid ${currentStudent.color}`
+                }}>
+                  <h3 style={{ fontSize: '2.2rem', color: currentStudent.color, marginBottom: '2rem', fontWeight: 700 }}>
+                    {currentStudent.name} - {currentStudent.curso}
+                  </h3>
+
+                  {/* Apoyos necesarios */}
+                  <div style={{ marginBottom: '2rem' }}>
+                    <h4 style={{ fontSize: '1.6rem', color: '#2d3436', marginBottom: '1rem', fontWeight: 600 }}>
+                      Apoyos necesarios
+                    </h4>
+                    <ul style={{ listStyle: 'none', padding: 0 }}>
+                      {currentStudent.apoyos.map((apoyo, idx) => (
+                        <li key={idx} style={{
+                          padding: '1rem',
+                          background: '#f8f9fa',
+                          borderRadius: '8px',
+                          marginBottom: '0.75rem',
+                          borderLeft: `4px solid ${currentStudent.color}`,
+                          fontSize: '1.1rem',
+                          color: '#2d3436',
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          gap: '0.75rem'
+                        }}>
+                          <Icon name="CheckCircle" size={20} style={{ color: currentStudent.color, flexShrink: 0, marginTop: '0.2rem' }} />
+                          <span>{apoyo}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Fortalezas */}
+                  <div style={{ marginBottom: '2rem' }}>
+                    <h4 style={{ fontSize: '1.6rem', color: '#2d3436', marginBottom: '1rem', fontWeight: 600 }}>
+                      Fortalezas e intereses
+                    </h4>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                      {currentStudent.fortalezas.map((fortaleza, idx) => (
+                        <div key={idx} style={{
+                          padding: '1rem',
+                          background: `${currentStudent.color}15`,
+                          borderRadius: '8px',
+                          fontSize: '1rem',
+                          color: '#2d3436',
+                          border: `2px solid ${currentStudent.color}30`,
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          gap: '0.5rem'
+                        }}>
+                          <Icon name="Sparkles" size={16} style={{ color: currentStudent.color, flexShrink: 0, marginTop: '0.2rem' }} />
+                          <span>{fortaleza}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Consideraciones */}
+                  <div>
+                    <h4 style={{ fontSize: '1.6rem', color: '#2d3436', marginBottom: '1rem', fontWeight: 600 }}>
+                      Consideraciones importantes
+                    </h4>
+                    <ul style={{ listStyle: 'none', padding: 0 }}>
+                      {currentStudent.consideraciones.map((consideracion, idx) => (
+                        <li key={idx} style={{
+                          padding: '1rem',
+                          background: '#fff3cd',
+                          borderRadius: '8px',
+                          marginBottom: '0.75rem',
+                          borderLeft: '4px solid #ffc107',
+                          fontSize: '1.1rem',
+                          color: '#856404'
+                        }}>
+                          {consideracion}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ADAPTADOR DE TAREAS */}
+            {activeSection === 'adaptador' && (
+              <AdaptadorInteractivo />
+            )}
+
+            {/* PREGUNTAS GUÍA */}
+            {activeSection === 'preguntas' && (
+              <div style={{ animation: 'fadeIn 0.5s ease' }}>
+                <h2 style={{ fontSize: '2.5rem', color: '#2d3436', marginBottom: '2rem', fontWeight: 700 }}>
+                  Preguntas Guía para la Enseñanza
+                </h2>
+
+                {[
+                  {
+                    categoria: "Sobre el estudiante",
+                    preguntas: [
+                      "¿Cuáles son nuestras miradas sobre estudiantes con discapacidad?",
+                      "¿Qué es lo que los/as estudiantes conocen? ¿Cómo conocen?",
+                      "¿Qué idea tienen sobre sí como estudiantes?",
+                      "¿Cómo se vinculan sus visiones de sí como jóvenes y como estudiantes?"
+                    ]
+                  },
+                  {
+                    categoria: "Sobre la enseñanza",
+                    preguntas: [
+                      "¿Cómo pensamos los contenidos a enseñar?",
+                      "¿Qué aspectos de los contenidos vamos a desarrollar?",
+                      "¿Quiénes pueden ayudarnos a planificar las clases?",
+                      "¿Cómo pensamos lo colectivo en el aula?"
+                    ]
+                  },
+                  {
+                    categoria: "Sobre los apoyos",
+                    preguntas: [
+                      "¿Qué pensamos que necesitan? ¿Qué necesitamos nosotros/as?",
+                      "¿De qué forma podemos usar tecnología como apoyo?",
+                      "¿Cómo podemos colaborar para que se sientan seguros/as?",
+                      "¿Cómo favorecemos vínculos sociales con compañeros/as?"
+                    ]
+                  },
+                  {
+                    categoria: "Sobre las familias",
+                    preguntas: [
+                      "¿Cómo pensamos el vínculo con las familias?",
+                      "¿En qué medida podemos generar colaboración con ellas?",
+                      "¿Qué información necesitan las familias de nosotros?"
+                    ]
+                  }
+                ].map((seccion, idx) => (
+                  <div key={idx} style={{
+                    background: 'white',
+                    borderRadius: '12px',
+                    padding: '2rem',
+                    marginBottom: '1.5rem',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                    borderLeft: `5px solid ${['#74b9ff', '#fd79a8', '#00b894', '#ffeaa7'][idx % 4]}`
+                  }}>
+                    <h3 style={{ fontSize: '1.6rem', color: '#2d3436', marginBottom: '1.5rem', fontWeight: 600 }}>
+                      {seccion.categoria}
+                    </h3>
+                    <ul style={{ listStyle: 'none', padding: 0 }}>
+                      {seccion.preguntas.map((pregunta, qIdx) => (
+                        <li key={qIdx} style={{
+                          padding: '1rem',
+                          background: '#f8f9fa',
+                          borderRadius: '8px',
+                          marginBottom: '0.75rem',
+                          fontSize: '1.1rem',
+                          color: '#2d3436',
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          gap: '0.75rem'
+                        }}>
+                          <Icon name="CheckCircle" size={20} style={{ color: ['#74b9ff', '#fd79a8', '#00b894', '#ffeaa7'][idx % 4], flexShrink: 0, marginTop: '0.2rem' }} />
+                          <span>{pregunta}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+
+                <div style={{
+                  background: 'linear-gradient(135deg, #6c5ce7, #a29bfe)',
+                  borderRadius: '12px',
+                  padding: '2rem',
+                  color: 'white',
+                  marginTop: '2rem'
+                }}>
+                  <h3 style={{ fontSize: '1.8rem', marginBottom: '1rem' }}>Recordá siempre:</h3>
+                  <ul style={{ fontSize: '1.1rem', lineHeight: 1.8, paddingLeft: '1.5rem' }}>
+                    <li>Escuchar a los estudiantes: preguntarles directamente</li>
+                    <li>Hablar con naturalidad sobre los apoyos</li>
+                    <li>Recuperar la diferencia como algo neutral o positivo</li>
+                    <li>Revisar tiempos escolares y flexibilizarlos cuando sea necesario</li>
+                  </ul>
+                </div>
+              </div>
+            )}
+          </main>
+        </div>
+      );
+    }
+
+    // Renderizar la aplicación
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<EducacionInclusiva />);
+  </script>
+</body>
+</html>
